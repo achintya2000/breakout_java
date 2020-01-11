@@ -3,11 +3,11 @@ game
 
 This project implements the game of Breakout.
 
-Name: 
+Name: Achintya Kumar
 
 ### Timeline
 
-Start Date: 
+Start Date: Jan 11, 2020
 
 Finish Date: 
 
