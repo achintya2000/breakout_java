@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public static final String TITLE = "Achintya's Breakout Game";
+    private SimpleBrick brick = new SimpleBrick(500, 500, 100, 50, Color.GRAY);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -22,6 +23,7 @@ public class Main extends Application {
 
         ObservableList list = root.getChildren();
         list.add(writeText("Hello World", 45,200,200));
+        list.add(brick);
 
         primaryStage.setTitle(TITLE);
         primaryStage.setScene(scene);
