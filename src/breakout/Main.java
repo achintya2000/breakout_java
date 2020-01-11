@@ -1,7 +1,6 @@
 package breakout;
 
 import javafx.application.Application;
-import javafx.beans.Observable;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -13,7 +12,8 @@ import javafx.stage.Stage;
 public class Main extends Application {
 
     public static final String TITLE = "Achintya's Breakout Game";
-    private SimpleBrick brick = new SimpleBrick(500, 500, 100, 50, Color.GRAY);
+    private Brick simpleBrick = new Brick(500, 500, 100, 50, Color.GRAY, 1, "simple");
+    private Brick multiBrick = new Brick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -23,7 +23,8 @@ public class Main extends Application {
 
         ObservableList list = root.getChildren();
         list.add(writeText("Hello World", 45,200,200));
-        list.add(brick);
+        list.add(simpleBrick);
+        list.add(multiBrick);
 
         primaryStage.setTitle(TITLE);
         primaryStage.setScene(scene);
