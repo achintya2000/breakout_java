@@ -23,6 +23,8 @@ public class Main extends Application {
     public static final String TITLE = "Achintya's Breakout Game";
     public static final int WIDTH = 800;
     public static final int HEIGHT = 800;
+    public static final int PADDLE_WIDTH = 70;
+    public static final int PADDLE_HEIGHT = 20;
     public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
@@ -33,7 +35,7 @@ public class Main extends Application {
 
     private Brick simpleBrick = new Brick(500, 500, 100, 50, Color.GRAY, 1, "simple");
     private Brick multiBrick = new Brick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
-    private Brick gamePaddle = new Brick(350, 700, 70, 20, Color.BLACK, 3, "player");
+    private Brick gamePaddle = new Brick(350, 700, PADDLE_WIDTH, PADDLE_HEIGHT, Color.BLACK, 3, "player");
     private Circle ball = new Circle(400,690,10);
 
     @Override
@@ -63,13 +65,25 @@ public class Main extends Application {
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.RIGHT) {
-                    gamePaddle.setLayoutX(gamePaddle.getLayoutX() + 20);
-                } else if (event.getCode() == KeyCode.LEFT) {
-                    gamePaddle.setLayoutX(gamePaddle.getLayoutX() - 20);
+                if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
+                    if (event.getCode() == KeyCode.RIGHT) {
+                        gamePaddle.setX(gamePaddle.getX() + 20);
+                    }
+                } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - PADDLE_WIDTH) {
+                    if (event.getCode() == KeyCode.LEFT) {
+                        gamePaddle.setX(gamePaddle.getX() - 20);
+                    }
+                } else {
+                    if (event.getCode() == KeyCode.RIGHT) {
+                        gamePaddle.setX(gamePaddle.getX() + 20);
+                    }
+                    if (event.getCode() == KeyCode.LEFT) {
+                        gamePaddle.setX(gamePaddle.getX() - 20);
+                    }
                 }
             }
-        });
+        }
+        );
     }
 
     private void step(double elapsedTime) {
