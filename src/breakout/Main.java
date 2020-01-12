@@ -36,6 +36,7 @@ public class Main extends Application {
 
     private Brick simpleBrick = new Brick(500, 500, 100, 50, Color.GRAY, 1, "simple");
     private Brick multiBrick = new Brick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
+
     private Brick gamePaddle = new Brick(350, 700, PADDLE_WIDTH, PADDLE_HEIGHT, Color.BLACK, 3, "player");
     private Circle ball = new Circle(400,690,10);
 
