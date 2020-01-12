@@ -7,8 +7,10 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
@@ -30,17 +32,21 @@ public class Main extends Application {
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
 
+    public static final String BALL_IMAGE = "ball.gif";
+    public static final String PADDLE_IMAGE = "paddle.gif";
+
     static Random random = new Random();
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
     public static int BALL_SPEED_Y = -80 - random.nextInt(20);
 
-    private Brick simpleBrick = new Brick(500, 500, 100, 50, Color.GRAY, 1, "simple");
-    private Brick multiBrick = new Brick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
+    //private SimpleBrick simpleBrick = new SimpleBrick(500, 500, 100, 50, Color.GRAY, 1, "simple");
+    //private SimpleBrick multiSimpleBrick = new SimpleBrick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
 
-    private Brick gamePaddle = new Brick(350, 700, PADDLE_WIDTH, PADDLE_HEIGHT, Color.BLACK, 3, "player");
-    private Circle ball = new Circle(400,690,10);
+    private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 400, 700);
+    private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 400, 650);
 
     Levels levelGenerator = new Levels();
+    TilePane tilePane;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -59,8 +65,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        levelGenerator.drawLevel1(root);
-
+        //levelGenerator.drawLevel1(root);
+        //tilePane = (TilePane) root.getChildren().get(2);
         // Add a game loop to timeline to play
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
         Timeline animation = new Timeline();
@@ -93,29 +99,36 @@ public class Main extends Application {
     }
 
     private void step(double elapsedTime) {
-        ball.setCenterX(ball.getCenterX() + BALL_SPEED_X * elapsedTime);
-        ball.setCenterY(ball.getCenterY() + BALL_SPEED_Y * elapsedTime);
 
-        if (ball.getCenterX() >= WIDTH - ball.getRadius() || ball.getCenterX() <= 0 + ball.getRadius()) {
+        ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
+        ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
+
+        if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
             BALL_SPEED_X *= -1;
         }
-        if (ball.getCenterY() <= 0 + ball.getRadius()) {
+
+        if (ball.getBoundsInParent().getMinY() <= 0) {
             BALL_SPEED_Y *= -1;
         }
 
-        Shape intersection = Shape.intersect(gamePaddle, ball);
-        if (intersection.getBoundsInLocal().getWidth() != -1) {
-            double paddle_left = gamePaddle.getBoundsInParent().getMinX();
-            double paddle_right = gamePaddle.getBoundsInParent().getMaxX();
-            double ball_center = ball.getCenterX();
-            boolean left = paddle_left - ball_center > 0;
-            boolean right = paddle_right - ball_center < 0;
-            if (left || right) {
-                ball.setCenterY(ball.getCenterY() + 5);
-                BALL_SPEED_X *= -1;
-            }
+        if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
             BALL_SPEED_Y *= -1;
         }
+
+//        Shape intersection = Shape.intersect(gamePaddle, ball);
+//        if (intersection.getBoundsInLocal().getWidth() != -1) {
+//            double paddle_left = gamePaddle.getBoundsInParent().getMinX();
+//            double paddle_right = gamePaddle.getBoundsInParent().getMaxX();
+//            double ball_center = ball.getCenterX();
+//            boolean left = paddle_left - ball_center > 0;
+//            boolean right = paddle_right - ball_center < 0;
+//            if (left || right) {
+//                ball.setCenterY(ball.getCenterY() + 5);
+//                BALL_SPEED_X *= -1;
+//            }
+//            BALL_SPEED_Y *= -1;
+//        }
+
     }
 
     public Text writeText(String message, int font, int x, int y) {
