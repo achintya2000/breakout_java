@@ -11,6 +11,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -30,8 +31,8 @@ public class Main extends Application {
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
 
     static Random random = new Random();
-    public static int BALL_SPEED_X = 60 + random.nextInt(20);
-    public static int BALL_SPEED_Y = 60 + random.nextInt(20);
+    public static int BALL_SPEED_X = 80 + random.nextInt(20);
+    public static int BALL_SPEED_Y = -80 - random.nextInt(20);
 
     private Brick simpleBrick = new Brick(500, 500, 100, 50, Color.GRAY, 1, "simple");
     private Brick multiBrick = new Brick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
@@ -89,6 +90,26 @@ public class Main extends Application {
     private void step(double elapsedTime) {
         ball.setCenterX(ball.getCenterX() + BALL_SPEED_X * elapsedTime);
         ball.setCenterY(ball.getCenterY() + BALL_SPEED_Y * elapsedTime);
+
+        if (ball.getCenterX() >= WIDTH - ball.getRadius() || ball.getCenterX() <= 0 + ball.getRadius()) {
+            BALL_SPEED_X *= -1;
+        }
+        if (ball.getCenterY() <= 0 + ball.getRadius()) {
+            BALL_SPEED_Y *= -1;
+        }
+
+        Shape intersection = Shape.intersect(gamePaddle, ball);
+        if (intersection.getBoundsInLocal().getWidth() != -1) {
+            double paddle_center = gamePaddle.getBoundsInParent().getCenterX();
+            double ball_center = ball.getCenterX();
+            boolean left = paddle_center - ball_center > 0;
+            boolean right = paddle_center - ball_center < 0;
+            if (left || right) {
+                ball.setCenterY(ball.getCenterY() + 5);
+                BALL_SPEED_X *= -1;
+            }
+            BALL_SPEED_Y *= -1;
+        }
     }
 
     public Text writeText(String message, int font, int x, int y) {
