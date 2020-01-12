@@ -39,6 +39,8 @@ public class Main extends Application {
     private Brick gamePaddle = new Brick(350, 700, PADDLE_WIDTH, PADDLE_HEIGHT, Color.BLACK, 3, "player");
     private Circle ball = new Circle(400,690,10);
 
+    Levels levelGenerator = new Levels();
+
     @Override
     public void start(Stage primaryStage) throws Exception {
         Group root = new Group();
@@ -46,15 +48,17 @@ public class Main extends Application {
         scene.setFill(Color.AZURE);
 
         ObservableList list = root.getChildren();
-        list.add(writeText("Hello World", 45,200,200));
-        list.add(simpleBrick);
-        list.add(multiBrick);
+        //list.add(writeText("Hello World", 45,200,200));
+        //list.add(simpleBrick);
+        //list.add(multiBrick);
         list.add(gamePaddle);
         list.add(ball);
 
         primaryStage.setTitle(TITLE);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        levelGenerator.drawLevel1(root);
 
         // Add a game loop to timeline to play
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
@@ -100,10 +104,11 @@ public class Main extends Application {
 
         Shape intersection = Shape.intersect(gamePaddle, ball);
         if (intersection.getBoundsInLocal().getWidth() != -1) {
-            double paddle_center = gamePaddle.getBoundsInParent().getCenterX();
+            double paddle_left = gamePaddle.getBoundsInParent().getMinX();
+            double paddle_right = gamePaddle.getBoundsInParent().getMaxX();
             double ball_center = ball.getCenterX();
-            boolean left = paddle_center - ball_center > 0;
-            boolean right = paddle_center - ball_center < 0;
+            boolean left = paddle_left - ball_center > 0;
+            boolean right = paddle_right - ball_center < 0;
             if (left || right) {
                 ball.setCenterY(ball.getCenterY() + 5);
                 BALL_SPEED_X *= -1;
