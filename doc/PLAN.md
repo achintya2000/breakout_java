@@ -19,6 +19,7 @@ There will be three levels in the game that increase in difficulty.
 - Ball slowdown - this power up will slow down the velocity of the ball increasing the time you are given to react to its position
 - Hearts - obtaining a heart will grant you an extra life
 ### Cheat Key Ideas
+In addition to what is required by the specifications I will do:
 - Bomb Disposal Unit - entering this cheat code will cause all the bomb block to disappear from the level
 - Super Powered Ball - if one enters this cheat code all bricks in the level will take only one hit to destroy
 - God - entering the god mode cheat will give you the previous two cheats and over a million lives
