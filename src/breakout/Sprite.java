@@ -14,4 +14,5 @@ public class Sprite extends ImageView {
         this.type = name;
         this.lives = lives;
     }
+
 }

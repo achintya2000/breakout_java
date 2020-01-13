@@ -29,6 +29,7 @@ public class Main extends Application {
 
     public static final String BALL_IMAGE = "ball.gif";
     public static final String PADDLE_IMAGE = "paddle.gif";
+    public static final String BRICK_IMAGE_1 = "brick1.gif";
 
     static Random random = new Random();
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
@@ -57,7 +58,8 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        levelGenerator.drawLevel1(root);
+        //levelGenerator.drawLevel1(root);
+        levelGenerator.drawLevel2(root);
         //tilePane = (TilePane) root.getChildren().get(2);
         // Add a game loop to timeline to play
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
@@ -138,6 +140,8 @@ public class Main extends Application {
                     sB.lives--;
                     if (sB.lives == 0) {
                         sB.setImage(null);
+                    } else if (sB.lives == 1) {
+                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
                     }
                 }
             }
