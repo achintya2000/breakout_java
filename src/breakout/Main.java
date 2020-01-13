@@ -124,9 +124,26 @@ public class Main extends Application {
         }
 
         for (SimpleBrick sB : levelGenerator.brickList) {
-            if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
-                BALL_SPEED_X *= -1;
-                BALL_SPEED_Y *= -1;
+            if (sB.getImage() != null) {
+                if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
+
+                    double centerBallX = ball.getBoundsInParent().getCenterX();
+                    double centerBallY = ball.getBoundsInParent().getCenterY();
+
+                    if ((centerBallX <= sB.getBoundsInParent().getMinX()
+                            && centerBallY <= sB.getBoundsInParent().getMinY()) ||
+                            (centerBallX >= sB.getBoundsInParent().getMaxX())
+                                    && centerBallY <= sB.getBoundsInParent().getMinY()) {
+                        BALL_SPEED_X *= -1;
+                    } else {
+                        BALL_SPEED_Y *= -1;
+                    }
+
+                    sB.numLives--;
+                    if (sB.numLives == 0) {
+                        sB.setImage(null);
+                    }
+                }
             }
         }
 
