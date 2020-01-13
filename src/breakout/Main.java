@@ -24,10 +24,8 @@ import java.util.Random;
 public class Main extends Application {
 
     public static final String TITLE = "Achintya's Breakout Game";
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 800;
-    public static final int PADDLE_WIDTH = 70;
-    public static final int PADDLE_HEIGHT = 20;
+    public static final int WIDTH = 600;
+    public static final int HEIGHT = 600;
     public static final int FRAMES_PER_SECOND = 60;
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
@@ -38,12 +36,10 @@ public class Main extends Application {
     static Random random = new Random();
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
     public static int BALL_SPEED_Y = -80 - random.nextInt(20);
+    public static double BALL_SPEED_TOTAL = Math.sqrt(Math.pow(BALL_SPEED_Y, 2) + Math.pow(BALL_SPEED_X,2));
 
-    //private SimpleBrick simpleBrick = new SimpleBrick(500, 500, 100, 50, Color.GRAY, 1, "simple");
-    //private SimpleBrick multiSimpleBrick = new SimpleBrick(625,500, 100, 50, Color.BLUEVIOLET, 3, "multi");
-
-    private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 400, 700);
-    private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 400, 650);
+    private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
+    private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
 
     Levels levelGenerator = new Levels();
     TilePane tilePane;
@@ -65,7 +61,7 @@ public class Main extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        //levelGenerator.drawLevel1(root);
+        levelGenerator.drawLevel1(root);
         //tilePane = (TilePane) root.getChildren().get(2);
         // Add a game loop to timeline to play
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
@@ -81,7 +77,7 @@ public class Main extends Application {
                     if (event.getCode() == KeyCode.RIGHT) {
                         gamePaddle.setX(gamePaddle.getX() + 20);
                     }
-                } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - PADDLE_WIDTH) {
+                } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - gamePaddle.getBoundsInLocal().getWidth()) {
                     if (event.getCode() == KeyCode.LEFT) {
                         gamePaddle.setX(gamePaddle.getX() - 20);
                     }
@@ -93,13 +89,16 @@ public class Main extends Application {
                         gamePaddle.setX(gamePaddle.getX() - 20);
                     }
                 }
+                if (event.getCode() == KeyCode.R) {
+                    ball.resetBall(300, 400);
+                }
             }
         }
         );
     }
 
     private void step(double elapsedTime) {
-
+        //System.out.println(gamePaddle.getBoundsInParent());
         ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
         ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
 
@@ -111,8 +110,24 @@ public class Main extends Application {
             BALL_SPEED_Y *= -1;
         }
 
+        if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
+
+        }
+
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+//            if(gamePaddle.getBoundsInParent().getMaxX() - 15 < ball.getBoundsInParent().getCenterX()) {
+//                BALL_SPEED_Y *= -.9;
+//                BALL_SPEED_X *= -1;
+//            }
+
             BALL_SPEED_Y *= -1;
+        }
+
+        for (SimpleBrick sB : levelGenerator.brickList) {
+            if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
+                BALL_SPEED_X *= -1;
+                BALL_SPEED_Y *= -1;
+            }
         }
 
 //        Shape intersection = Shape.intersect(gamePaddle, ball);

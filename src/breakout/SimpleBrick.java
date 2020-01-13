@@ -8,10 +8,10 @@ public class SimpleBrick extends Sprite {
     boolean dead = false;
     int numLives;
 
-    SimpleBrick(int x, int y, Image image, Color color, int lives, String type) {
+    SimpleBrick(int x, int y, Image image, int lives, String type) {
         super(type, lives, image);
-        setTranslateX(x);
-        setTranslateY(y);
+        setX(x);
+        setY(y);
         this.numLives = lives;
     }
 }
