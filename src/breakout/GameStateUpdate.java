@@ -19,7 +19,7 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Main extends Application {
+public class GameStateUpdate extends Application {
 
     public static final String TITLE = "Achintya's Breakout Game";
     public static final int WIDTH = 600;
@@ -45,26 +45,36 @@ public class Main extends Application {
     private ArrayList<PowerUp> powerUpManager = new ArrayList<PowerUp>();
 
     Levels levelGenerator = new Levels();
-    Group root = new Group();
+
+    //Group root = new Group();
+    Scene scene;
+    Stage primaryStage;
+
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
+        //scene = levelGenerator.drawLevel1(root);
+        //Scene scene = new Scene(root, WIDTH, HEIGHT);
+        //scene.setFill(Color.AZURE);
 
-        Scene scene = new Scene(root, WIDTH, HEIGHT);
-        scene.setFill(Color.AZURE);
-
-        ObservableList list = root.getChildren();
+        //ObservableList list = root.getChildren();
         //list.add(writeText("Hello World", 45,200,200));
         //list.add(simpleBrick);
         //list.add(multiBrick);
-        list.add(gamePaddle);
-        list.add(ball);
+        //list.add(gamePaddle);
+        //list.add(ball);
 
-        primaryStage.setTitle(TITLE);
+        //primaryStage.setTitle(TITLE);
+        //primaryStage.setScene(scene);
+        scene = levelGenerator.drawLevel2(ball, gamePaddle);
+
+        scene.setOnKeyPressed(e -> handle(e.getCode()));
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
         //levelGenerator.drawLevel1(root);
-        levelGenerator.drawLevel2(root);
+        //levelGenerator.drawLevel2(root);
         //tilePane = (TilePane) root.getChildren().get(2);
         // Add a game loop to timeline to play
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
@@ -73,41 +83,12 @@ public class Main extends Application {
         animation.getKeyFrames().add(frame);
         animation.play();
 
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
-                    if (event.getCode() == KeyCode.RIGHT) {
-                        gamePaddle.setX(gamePaddle.getX() + 20);
-                    }
-                } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - gamePaddle.getBoundsInLocal().getWidth()) {
-                    if (event.getCode() == KeyCode.LEFT) {
-                        gamePaddle.setX(gamePaddle.getX() - 20);
-                    }
-                } else {
-                    if (event.getCode() == KeyCode.RIGHT) {
-                        gamePaddle.setX(gamePaddle.getX() + 20);
-                    }
-                    if (event.getCode() == KeyCode.LEFT) {
-                        gamePaddle.setX(gamePaddle.getX() - 20);
-                    }
-                }
-                if (event.getCode() == KeyCode.R) {
-                    ball.resetBall(300, 400);
-                }
-                if (event.getCode() == KeyCode.Q) {
-                    levelGenerator.clearLevel(root);
-                    levelGenerator.drawLevel1(root);
-                }
-            }
-        }
-        );
+
     }
 
     private void step(double elapsedTime) {
-        //System.out.println(gamePaddle.getBoundsInParent());
-        ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
-        ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
+
+        updateBallState(elapsedTime);
 
         if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
             BALL_SPEED_X *= -1;
@@ -155,7 +136,7 @@ public class Main extends Application {
                                 sB.getBoundsInParent().getCenterX(),
                                 sB.getBoundsInParent().getCenterY());
                         //sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
-                        root.getChildren().add(lifeUp);
+                        levelGenerator.returnGroup().getChildren().add(lifeUp);
                         //lifeUp.moveDown(lifeUp, elapsedTime);
                         powerUpManager.add(lifeUp);
                     } else if (sB.type.equals("multiBrick")) {
@@ -202,6 +183,11 @@ public class Main extends Application {
 
     }
 
+    public void updateBallState(double elapsedTime) {
+        ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
+        ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
+    }
+
     public Text writeText(String message, int font, int x, int y) {
         Text text = new Text();
         text.setFont(new Font(font));
@@ -215,4 +201,34 @@ public class Main extends Application {
     public static void main (String[] args) {
         launch(args);
     }
+
+    public void handle(KeyCode event) {
+        if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
+            if (event == KeyCode.RIGHT) {
+                gamePaddle.setX(gamePaddle.getX() + 20);
+            }
+        } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - gamePaddle.getBoundsInLocal().getWidth()) {
+            if (event == KeyCode.LEFT) {
+                gamePaddle.setX(gamePaddle.getX() - 20);
+            }
+        } else {
+            if (event == KeyCode.RIGHT) {
+                gamePaddle.setX(gamePaddle.getX() + 20);
+            }
+            if (event == KeyCode.LEFT) {
+                gamePaddle.setX(gamePaddle.getX() - 20);
+            }
+        }
+        if (event == KeyCode.R) {
+            ball.resetBall(300, 400);
+        }
+
+        if (event == KeyCode.Q) {
+            scene = levelGenerator.drawLevel1(ball, gamePaddle);
+            primaryStage.setScene(scene);
+            scene.setOnKeyPressed(e -> handle(e.getCode()));
+        }
+
+    }
+
 }
