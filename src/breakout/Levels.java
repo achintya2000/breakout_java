@@ -2,6 +2,7 @@ package breakout;
 
 import javafx.geometry.Insets;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.TilePane;
@@ -13,6 +14,8 @@ public class Levels {
     public static final String BRICK_IMAGE_1 = "brick1.gif";
     public static final String BRICK_IMAGE_2 = "brick2.gif";
     public static final String BRICK_IMAGE_3 = "brick3.gif";
+    public static final String BRICK_IMAGE_4 = "brick4.gif";
+
 
     ArrayList<Sprite> brickList;
 
@@ -36,11 +39,15 @@ public class Levels {
 
     public void drawLevel2(Group root) {
         brickList = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            brickList.add(new MultiBrick("multiBrick", 2, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_2))));
-        }
+
         for (int i = 0; i < 20; i++) {
             brickList.add(new MultiBrick("simpleBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1))));
+        }
+        for (int i = 0; i < 3; i++) {
+            brickList.add(new MultiBrick("multiBrick", 2, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_2))));
+        }
+        for (int i = 0; i < 2; i++) {
+            brickList.add(new MultiBrick("lifeBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_4))));
         }
 
         tilePane.setPadding(new Insets(20, 75, 20, 75));
@@ -49,6 +56,12 @@ public class Levels {
 
         tilePane.getChildren().addAll(brickList);
         root.getChildren().add(tilePane);
+    }
+
+    public void clearLevel(Group root) {
+        brickList.clear();
+        tilePane.getChildren().removeAll();
+        root.getChildren().remove(tilePane);
     }
 
 }

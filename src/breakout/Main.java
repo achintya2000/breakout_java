@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Main extends Application {
@@ -30,20 +31,24 @@ public class Main extends Application {
     public static final String BALL_IMAGE = "ball.gif";
     public static final String PADDLE_IMAGE = "paddle.gif";
     public static final String BRICK_IMAGE_1 = "brick1.gif";
+    public static final String EXTRA_BALL = "extraballpower.gif";
 
     static Random random = new Random();
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
     public static int BALL_SPEED_Y = -80 - random.nextInt(20);
     public static double BALL_SPEED_TOTAL = Math.sqrt(Math.pow(BALL_SPEED_Y, 2) + Math.pow(BALL_SPEED_X,2));
+    public static int POWER_UP_VELOCITY = 10;
 
     private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
 
-    Levels levelGenerator = new Levels();
+    private ArrayList<PowerUp> powerUpManager = new ArrayList<PowerUp>();
 
+    Levels levelGenerator = new Levels();
+    Group root = new Group();
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Group root = new Group();
+
         Scene scene = new Scene(root, WIDTH, HEIGHT);
         scene.setFill(Color.AZURE);
 
@@ -89,6 +94,10 @@ public class Main extends Application {
                 }
                 if (event.getCode() == KeyCode.R) {
                     ball.resetBall(300, 400);
+                }
+                if (event.getCode() == KeyCode.Q) {
+                    levelGenerator.clearLevel(root);
+                    levelGenerator.drawLevel1(root);
                 }
             }
         }
@@ -136,13 +145,43 @@ public class Main extends Application {
                     } else {
                         BALL_SPEED_Y *= -1;
                     }
-
-                    sB.lives--;
-                    if (sB.lives == 0) {
+                    if (sB.type.equals("simpleBrick")) {
                         sB.setImage(null);
-                    } else if (sB.lives == 1) {
-                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
+                    } else if (sB.type.equals("lifeBrick")) {
+                        sB.setImage(null);
+                        PowerUp lifeUp = new PowerUp("powerUpLife",
+                                1,
+                                new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)),
+                                sB.getBoundsInParent().getCenterX(),
+                                sB.getBoundsInParent().getCenterY());
+                        //sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
+                        root.getChildren().add(lifeUp);
+                        //lifeUp.moveDown(lifeUp, elapsedTime);
+                        powerUpManager.add(lifeUp);
+                    } else if (sB.type.equals("multiBrick")) {
+                        sB.lives --;
+                        if (sB.lives == 1) {
+                            sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
+                        } else if (sB.lives == 0){
+                            sB.setImage(null);
+                        }
                     }
+
+//                    sB.lives--;
+//                    if (sB.lives == 0 && sB.type.equals("simpleBrick") || sB.type.equals("multiBrick")) {
+//                        sB.setImage(null);
+//                    } else if (sB.lives == 1 && sB.type.equals("multiBrick")) {
+//                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
+//                    } else if (sB.lives == 0 && sB.type.equals("lifeBrick")) {
+//                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
+//                    }
+                }
+            }
+
+            for (PowerUp pU : powerUpManager) {
+                pU.setY(pU.getY() + POWER_UP_VELOCITY * elapsedTime);
+                if (pU.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+                    pU.setImage(null);
                 }
             }
         }
