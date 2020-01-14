@@ -16,6 +16,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -37,7 +38,9 @@ public class GameStateUpdate extends Application {
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
     public static int BALL_SPEED_Y = -80 - random.nextInt(20);
     public static double BALL_SPEED_TOTAL = Math.sqrt(Math.pow(BALL_SPEED_Y, 2) + Math.pow(BALL_SPEED_X,2));
-    public static int POWER_UP_VELOCITY = 10;
+    public static final int POWER_UP_VELOCITY = 10;
+
+    public static final String LEVEl_1 = "test.txt";
 
     private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
@@ -73,6 +76,7 @@ public class GameStateUpdate extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        levelGenerator.readTextFile();
         //levelGenerator.drawLevel1(root);
         //levelGenerator.drawLevel2(root);
         //tilePane = (TilePane) root.getChildren().get(2);
@@ -197,11 +201,6 @@ public class GameStateUpdate extends Application {
         return text;
     }
 
-    // Initialize javaFX gui
-    public static void main (String[] args) {
-        launch(args);
-    }
-
     public void handle(KeyCode event) {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
             if (event == KeyCode.RIGHT) {
@@ -229,6 +228,11 @@ public class GameStateUpdate extends Application {
             scene.setOnKeyPressed(e -> handle(e.getCode()));
         }
 
+    }
+
+    // Initialize javaFX gui
+    public static void main (String[] args) {
+        launch(args);
     }
 
 }

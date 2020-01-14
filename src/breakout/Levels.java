@@ -9,7 +9,15 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Levels {
     public static final String BRICK_IMAGE_1 = "brick1.gif";
@@ -83,13 +91,16 @@ public class Levels {
         return newScene;
     }
 
-    public void clearLevel(Group root) {
-        brickList.clear();
-        tilePane.getChildren().removeAll();
-        root.getChildren().remove(tilePane);
-    }
-
     public Group returnGroup() {
         return root;
+    }
+
+    public ArrayList<String> readTextFile() throws IOException {
+        String content = Files.readString(Paths.get("./resources/test.txt"), StandardCharsets.US_ASCII);
+        ArrayList<String> test = new ArrayList<>();
+        test.addAll(Arrays.asList(content.split(" ")));
+        System.out.println(content);
+        System.out.println(test);
+        return test;
     }
 }
