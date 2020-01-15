@@ -18,12 +18,12 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GameStateUpdate extends Application {
 
-    public static final String TITLE = "Achintya's Breakout Game";
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
     public static final int FRAMES_PER_SECOND = 60;
@@ -34,14 +34,14 @@ public class GameStateUpdate extends Application {
     public static final String PADDLE_IMAGE = "paddle.gif";
     public static final String BRICK_IMAGE_1 = "brick1.gif";
     public static final String EXTRA_BALL = "extraballpower.gif";
+    public static final String LEVEl_1 = "./resources/level1.txt";
+    public static final String LEVEL_2 = "./resources/level2.txt";
 
     static Random random = new Random();
     public static int BALL_SPEED_X = 80 + random.nextInt(20);
     public static int BALL_SPEED_Y = -80 - random.nextInt(20);
     public static double BALL_SPEED_TOTAL = Math.sqrt(Math.pow(BALL_SPEED_Y, 2) + Math.pow(BALL_SPEED_X,2));
-    public static final int POWER_UP_VELOCITY = 10;
-
-    public static final String LEVEl_1 = "test.txt";
+    public static final int POWER_UP_VELOCITY = 80;
 
     private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
@@ -50,6 +50,7 @@ public class GameStateUpdate extends Application {
 
     Levels levelGenerator = new Levels();
     UIElements uiElementsGenerator = new UIElements();
+
     //Group root = new Group();
     Scene scene;
     Stage primaryStage;
@@ -71,10 +72,17 @@ public class GameStateUpdate extends Application {
         //primaryStage.setTitle(TITLE);
         //primaryStage.setScene(scene);
         //scene = levelGenerator.drawLevel2(ball, gamePaddle);
-        //scene = levelGenerator.drawALevel(ball, gamePaddle, "./resources/test.txt");
+        //scene = levelGenerator.drawALevel(ball, gamePaddle, "./resources/level1.txt");
         scene = uiElementsGenerator.createMainSplashScreen();
 
-        scene.setOnKeyPressed(e -> handle(e.getCode()));
+
+        scene.setOnKeyPressed(e -> {
+            try {
+                handle(e.getCode());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
 
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -89,13 +97,13 @@ public class GameStateUpdate extends Application {
         animation.setCycleCount(Timeline.INDEFINITE);
         animation.getKeyFrames().add(frame);
         animation.play();
-
-
     }
 
     private void step(double elapsedTime) {
 
         updateBallState(elapsedTime);
+
+        //uiElementsGenerator.keepScore(scene, scoreText, gamePaddle);
 
         if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
             BALL_SPEED_X *= -1;
@@ -106,7 +114,9 @@ public class GameStateUpdate extends Application {
         }
 
         if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
-
+            ball.resetBall(300, 400);
+            gamePaddle.lives--;
+            uiElementsGenerator.updateText(UIElements.scoreText, "Score is: " + gamePaddle.lives);
         }
 
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
@@ -201,7 +211,7 @@ public class GameStateUpdate extends Application {
 
 
 
-    public void handle(KeyCode event) {
+    public void handle(KeyCode event) throws IOException {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
             if (event == KeyCode.RIGHT) {
                 gamePaddle.setX(gamePaddle.getX() + 20);
@@ -223,9 +233,27 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.ENTER) {
-            scene = levelGenerator.drawLevel1(ball, gamePaddle);
+            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
             primaryStage.setScene(scene);
-            scene.setOnKeyPressed(e -> handle(e.getCode()));
+            scene.setOnKeyPressed(e -> {
+                try {
+                    handle(e.getCode());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+        }
+
+        if (event == KeyCode.Q) {
+            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEl_1);
+            primaryStage.setScene(scene);
+            scene.setOnKeyPressed(e -> {
+                try {
+                    handle(e.getCode());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
         }
 
         if (event == KeyCode.ESCAPE) {
