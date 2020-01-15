@@ -3,6 +3,7 @@ package breakout;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -48,7 +49,7 @@ public class GameStateUpdate extends Application {
     private ArrayList<PowerUp> powerUpManager = new ArrayList<PowerUp>();
 
     Levels levelGenerator = new Levels();
-
+    UIElements uiElementsGenerator = new UIElements();
     //Group root = new Group();
     Scene scene;
     Stage primaryStage;
@@ -70,7 +71,8 @@ public class GameStateUpdate extends Application {
         //primaryStage.setTitle(TITLE);
         //primaryStage.setScene(scene);
         //scene = levelGenerator.drawLevel2(ball, gamePaddle);
-        scene = levelGenerator.drawALevel(ball, gamePaddle, "./resources/test.txt");
+        //scene = levelGenerator.drawALevel(ball, gamePaddle, "./resources/test.txt");
+        scene = uiElementsGenerator.createMainSplashScreen();
 
         scene.setOnKeyPressed(e -> handle(e.getCode()));
 
@@ -116,54 +118,58 @@ public class GameStateUpdate extends Application {
             BALL_SPEED_Y *= -1;
         }
 
-        for (Sprite sB : levelGenerator.brickList) {
-            if (sB.getImage() != null) {
-                if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
+        if (levelGenerator.brickList != null) {
+            for (Sprite sB : levelGenerator.brickList) {
+                if (sB.getImage() != null) {
+                    if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
 
-                    double centerBallX = ball.getBoundsInParent().getCenterX();
-                    double centerBallY = ball.getBoundsInParent().getCenterY();
+                        double centerBallX = ball.getBoundsInParent().getCenterX();
+                        double centerBallY = ball.getBoundsInParent().getCenterY();
 
-                    if ((centerBallX <= sB.getBoundsInParent().getMinX()
-                            && centerBallY <= sB.getBoundsInParent().getMinY()) ||
-                            (centerBallX >= sB.getBoundsInParent().getMaxX())
-                                    && centerBallY <= sB.getBoundsInParent().getMinY()) {
-                        BALL_SPEED_X *= -1;
-                    } else {
-                        BALL_SPEED_Y *= -1;
-                    }
-                    if (sB.type.equals("simpleBrick")) {
-                        sB.setImage(null);
-                    } else if (sB.type.equals("lifeBrick")) {
-                        sB.setImage(null);
-                        PowerUp lifeUp = new PowerUp("powerUpLife",
-                                1,
-                                new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)),
-                                sB.getBoundsInParent().getCenterX(),
-                                sB.getBoundsInParent().getCenterY());
-                        //sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
-                        levelGenerator.returnGroup().getChildren().add(lifeUp);
-                        //lifeUp.moveDown(lifeUp, elapsedTime);
-                        powerUpManager.add(lifeUp);
-                    } else if (sB.type.equals("multiBrick")) {
-                        sB.lives --;
-                        if (sB.lives == 1) {
-                            sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
-                        } else if (sB.lives == 0){
-                            sB.setImage(null);
+                        if ((centerBallX <= sB.getBoundsInParent().getMinX()
+                                && centerBallY <= sB.getBoundsInParent().getMinY()) ||
+                                (centerBallX >= sB.getBoundsInParent().getMaxX())
+                                        && centerBallY <= sB.getBoundsInParent().getMinY()) {
+                            BALL_SPEED_X *= -1;
+                        } else {
+                            BALL_SPEED_Y *= -1;
                         }
-                    }
+                        if (sB.type.equals("simpleBrick")) {
+                            sB.setImage(null);
+                        } else if (sB.type.equals("lifeBrick")) {
+                            sB.setImage(null);
+                            PowerUp lifeUp = new PowerUp("powerUpLife",
+                                    1,
+                                    new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)),
+                                    sB.getBoundsInParent().getCenterX(),
+                                    sB.getBoundsInParent().getCenterY());
+                            //sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
+                            levelGenerator.returnGroup().getChildren().add(lifeUp);
+                            //lifeUp.moveDown(lifeUp, elapsedTime);
+                            powerUpManager.add(lifeUp);
+                        } else if (sB.type.equals("multiBrick")) {
+                            sB.lives--;
+                            if (sB.lives == 1) {
+                                sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
+                            } else if (sB.lives == 0) {
+                                sB.setImage(null);
+                            }
+                        }
 
-//                    sB.lives--;
-//                    if (sB.lives == 0 && sB.type.equals("simpleBrick") || sB.type.equals("multiBrick")) {
-//                        sB.setImage(null);
-//                    } else if (sB.lives == 1 && sB.type.equals("multiBrick")) {
-//                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
-//                    } else if (sB.lives == 0 && sB.type.equals("lifeBrick")) {
-//                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
-//                    }
+    //                    sB.lives--;
+    //                    if (sB.lives == 0 && sB.type.equals("simpleBrick") || sB.type.equals("multiBrick")) {
+    //                        sB.setImage(null);
+    //                    } else if (sB.lives == 1 && sB.type.equals("multiBrick")) {
+    //                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1)));
+    //                    } else if (sB.lives == 0 && sB.type.equals("lifeBrick")) {
+    //                        sB.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(EXTRA_BALL)));
+    //                    }
+                    }
                 }
             }
+        }
 
+        if (powerUpManager != null) {
             for (PowerUp pU : powerUpManager) {
                 pU.setY(pU.getY() + POWER_UP_VELOCITY * elapsedTime);
                 if (pU.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
@@ -193,14 +199,7 @@ public class GameStateUpdate extends Application {
         ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
     }
 
-    public Text writeText(String message, int font, int x, int y) {
-        Text text = new Text();
-        text.setFont(new Font(font));
-        text.setX(x);
-        text.setY(y);
-        text.setText(message);
-        return text;
-    }
+
 
     public void handle(KeyCode event) {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
@@ -223,10 +222,14 @@ public class GameStateUpdate extends Application {
             ball.resetBall(300, 400);
         }
 
-        if (event == KeyCode.Q) {
+        if (event == KeyCode.ENTER) {
             scene = levelGenerator.drawLevel1(ball, gamePaddle);
             primaryStage.setScene(scene);
             scene.setOnKeyPressed(e -> handle(e.getCode()));
+        }
+
+        if (event == KeyCode.ESCAPE) {
+            Platform.exit();
         }
 
     }
