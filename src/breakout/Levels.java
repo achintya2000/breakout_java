@@ -91,12 +91,41 @@ public class Levels {
         return newScene;
     }
 
+    public Scene drawALevel(Ball ball, GamePaddle gamePaddle, String path) throws IOException {
+        root = new Group();
+        root.getChildren().add(gamePaddle);
+        root.getChildren().add(ball);
+
+        ArrayList<String> levelContent = readTextFile(path);
+        brickList = new ArrayList<>();
+
+        for (String s : levelContent) {
+            if (s.equals("S")) {
+                brickList.add(new MultiBrick("simpleBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1))));
+            } else if (s.equals("L")) {
+
+            }
+
+        }
+
+        tilePane = new TilePane();
+        tilePane.setPadding(new Insets(20, 75, 20, 75));
+        tilePane.setVgap(25);
+        tilePane.setHgap(25);
+
+        tilePane.getChildren().addAll(brickList);
+        root.getChildren().add(tilePane);
+
+        Scene newScene = new Scene(root, HEIGHT, WIDTH);
+        return newScene;
+    }
+
     public Group returnGroup() {
         return root;
     }
 
-    public ArrayList<String> readTextFile() throws IOException {
-        String content = Files.readString(Paths.get("./resources/test.txt"), StandardCharsets.US_ASCII);
+    public ArrayList<String> readTextFile(String path) throws IOException {
+        String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
         ArrayList<String> test = new ArrayList<>();
         test.addAll(Arrays.asList(content.split(" ")));
         System.out.println(content);

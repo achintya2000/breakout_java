@@ -69,14 +69,15 @@ public class GameStateUpdate extends Application {
 
         //primaryStage.setTitle(TITLE);
         //primaryStage.setScene(scene);
-        scene = levelGenerator.drawLevel2(ball, gamePaddle);
+        //scene = levelGenerator.drawLevel2(ball, gamePaddle);
+        scene = levelGenerator.drawALevel(ball, gamePaddle, "./resources/test.txt");
 
         scene.setOnKeyPressed(e -> handle(e.getCode()));
 
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        levelGenerator.readTextFile();
+        //levelGenerator.readTextFile();
         //levelGenerator.drawLevel1(root);
         //levelGenerator.drawLevel2(root);
         //tilePane = (TilePane) root.getChildren().get(2);
