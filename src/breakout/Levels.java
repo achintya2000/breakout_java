@@ -37,63 +37,7 @@ public class Levels {
     Group root;
 
     UIElements uiElementsGenerator = new UIElements();
-
-//    public Scene drawLevel1(Ball ball, GamePaddle gamePaddle){
-//        root = new Group();
-//        root.getChildren().add(gamePaddle);
-//        root.getChildren().add(ball);
-//
-//        tilePane = new TilePane();
-//
-//        brickList = new ArrayList<>();
-//        for (int i = 0; i < 20; i++) {
-//            brickList.add(new MultiBrick("simpleBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1))));
-//        }
-//
-//        tilePane.setPadding(new Insets(20, 75, 20, 75));
-//        tilePane.setVgap(25);
-//        tilePane.setHgap(25);
-//
-//        tilePane.getChildren().addAll(brickList);
-//
-//        root.getChildren().add(tilePane);
-//
-//        Scene newScene = new Scene(root, HEIGHT, WIDTH);
-//
-//        return newScene;
-//    }
-//
-//    public Scene drawLevel2(Ball ball, GamePaddle gamePaddle) {
-//        root = new Group();
-//        root.getChildren().add(gamePaddle);
-//        root.getChildren().add(ball);
-//
-//        tilePane = new TilePane();
-//
-//        brickList = new ArrayList<>();
-//
-//        for (int i = 0; i < 20; i++) {
-//            brickList.add(new MultiBrick("simpleBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_1))));
-//        }
-//        for (int i = 0; i < 3; i++) {
-//            brickList.add(new MultiBrick("multiBrick", 2, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_2))));
-//        }
-//        for (int i = 0; i < 2; i++) {
-//            brickList.add(new MultiBrick("lifeBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_4))));
-//        }
-//
-//        tilePane.setPadding(new Insets(20, 75, 20, 75));
-//        tilePane.setVgap(25);
-//        tilePane.setHgap(25);
-//
-//        tilePane.getChildren().addAll(brickList);
-//        root.getChildren().add(tilePane);
-//
-//        Scene newScene = new Scene(root, HEIGHT, WIDTH);
-//
-//        return newScene;
-//    }
-
+    
     public Scene drawALevel(Ball ball, GamePaddle gamePaddle, String path) throws IOException {
         root = new Group();
         root.getChildren().add(gamePaddle);
@@ -121,7 +65,7 @@ public class Levels {
         tilePane.getChildren().addAll(brickList);
         root.getChildren().add(tilePane);
 
-        UIElements.scoreText = uiElementsGenerator.createText("Score is: " + gamePaddle.lives, 20, 50, 500);
+        UIElements.scoreText = uiElementsGenerator.createText("Lives left: " + gamePaddle.lives, 20, 50, 500);
         root.getChildren().add(UIElements.scoreText);
 
         Scene newScene = new Scene(root, HEIGHT, WIDTH);
@@ -137,8 +81,6 @@ public class Levels {
         String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
         ArrayList<String> test = new ArrayList<>();
         test.addAll(Arrays.asList(content.split(" ")));
-        System.out.println(content);
-        System.out.println(test);
         return test;
     }
 }

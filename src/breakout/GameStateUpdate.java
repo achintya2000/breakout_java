@@ -20,6 +20,8 @@ import javafx.util.Duration;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Random;
 
 public class GameStateUpdate extends Application {
@@ -34,7 +36,7 @@ public class GameStateUpdate extends Application {
     public static final String PADDLE_IMAGE = "paddle.gif";
     public static final String BRICK_IMAGE_1 = "brick1.gif";
     public static final String EXTRA_BALL = "extraballpower.gif";
-    public static final String LEVEl_1 = "./resources/level1.txt";
+    public static final String LEVEL_1 = "./resources/level1.txt";
     public static final String LEVEL_2 = "./resources/level2.txt";
 
     static Random random = new Random();
@@ -47,6 +49,8 @@ public class GameStateUpdate extends Application {
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
 
     private ArrayList<PowerUp> powerUpManager = new ArrayList<PowerUp>();
+
+    //private int numOfNull = 0;
 
     Levels levelGenerator = new Levels();
     UIElements uiElementsGenerator = new UIElements();
@@ -92,14 +96,20 @@ public class GameStateUpdate extends Application {
         //levelGenerator.drawLevel2(root);
         //tilePane = (TilePane) root.getChildren().get(2);
         // Add a game loop to timeline to play
-        KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> step(SECOND_DELAY));
+        KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> {
+            try {
+                step(SECOND_DELAY);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
         Timeline animation = new Timeline();
         animation.setCycleCount(Timeline.INDEFINITE);
         animation.getKeyFrames().add(frame);
         animation.play();
     }
 
-    private void step(double elapsedTime) {
+    private void step(double elapsedTime) throws IOException {
 
         updateBallState(elapsedTime);
 
@@ -116,7 +126,7 @@ public class GameStateUpdate extends Application {
         if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
             ball.resetBall(300, 400);
             gamePaddle.lives--;
-            uiElementsGenerator.updateText(UIElements.scoreText, "Score is: " + gamePaddle.lives);
+            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
         }
 
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
@@ -188,6 +198,24 @@ public class GameStateUpdate extends Application {
             }
         }
 
+        if (levelGenerator.brickList != null) {
+            int sizeOfLevel = levelGenerator.brickList.size();
+            int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
+
+            if (numOfNull == sizeOfLevel) {
+                scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
+                primaryStage.setScene(scene);
+                scene.setOnKeyPressed(e -> {
+                    try {
+                        handle(e.getCode());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            }
+
+        }
+
 //        Shape intersection = Shape.intersect(gamePaddle, ball);
 //        if (intersection.getBoundsInLocal().getWidth() != -1) {
 //            double paddle_left = gamePaddle.getBoundsInParent().getMinX();
@@ -233,7 +261,7 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.ENTER) {
-            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
+            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_1);
             primaryStage.setScene(scene);
             scene.setOnKeyPressed(e -> {
                 try {
@@ -245,7 +273,7 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.Q) {
-            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEl_1);
+            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_1);
             primaryStage.setScene(scene);
             scene.setOnKeyPressed(e -> {
                 try {
@@ -261,6 +289,7 @@ public class GameStateUpdate extends Application {
         }
 
     }
+
 
     // Initialize javaFX gui
     public static void main (String[] args) {
