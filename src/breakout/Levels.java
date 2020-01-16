@@ -23,7 +23,7 @@ import java.util.Scanner;
 public class Levels {
     public static final String BRICK_IMAGE_1 = "brick1.gif";
     public static final String BRICK_IMAGE_2 = "brick2.gif";
-    public static final String BRICK_IMAGE_3 = "brick3.gif";
+    public static final String BRICK_IMAGE_3 = "brick10.gif";
     public static final String BRICK_IMAGE_4 = "brick4.gif";
     public static final String BALL_IMAGE = "ball.gif";
     public static final String PADDLE_IMAGE = "paddle.gif";
@@ -37,7 +37,7 @@ public class Levels {
     Group root;
 
     UIElements uiElementsGenerator = new UIElements();
-    
+
     public Scene drawALevel(Ball ball, GamePaddle gamePaddle, String path) throws IOException {
         root = new Group();
         root.getChildren().add(gamePaddle);
@@ -53,6 +53,8 @@ public class Levels {
                 brickList.add(new MultiBrick("multiBrick", 2, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_2))));
             } else if (s.equals("L")) {
                 brickList.add(new MultiBrick("lifeBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_4))));
+            } else if (s.equals("B")) {
+                brickList.add(new MultiBrick("bombBrick", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BRICK_IMAGE_3))));
             }
 
         }

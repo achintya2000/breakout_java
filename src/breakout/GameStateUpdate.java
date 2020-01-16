@@ -174,6 +174,10 @@ public class GameStateUpdate extends Application {
                             } else if (sB.lives == 0) {
                                 sB.setImage(null);
                             }
+                        } else if (sB.type.equals("bombBrick")) {
+                            gamePaddle.lives -- ;
+                            sB.setImage(null);
+                            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
                         }
 
     //                    sB.lives--;
@@ -214,6 +218,19 @@ public class GameStateUpdate extends Application {
                 });
             }
 
+        }
+
+        if (gamePaddle.lives == 0) {
+            gamePaddle.lives = 3;
+            scene = uiElementsGenerator.createFailureScreen();
+            primaryStage.setScene(scene);
+            scene.setOnKeyPressed(e -> {
+                try {
+                    handle(e.getCode());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
         }
 
 //        Shape intersection = Shape.intersect(gamePaddle, ball);

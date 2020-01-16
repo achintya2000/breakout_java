@@ -20,9 +20,15 @@ public class UIElements {
         list.add(createText(TITLE,30, 150, 50));
         list.add(createText("Use arrow keys to move left and right to break bricks!",20, 100, 150));
         list.add(createText("Press Enter to begin",20, 200, 400));
-//        list.add(writeText(TITLE, 30, 150, 50));
-//        list.add(writeText("Use arrow keys to move left and right to break bricks!", 20, 100, 150));
-//        list.add(writeText("Press Enter to begin", 20, 200, 400));
+
+        return new Scene(root, GameStateUpdate.WIDTH, GameStateUpdate.HEIGHT);
+    }
+
+    public Scene createFailureScreen() {
+        Group root = new Group();
+        ObservableList list = root.getChildren();
+        list.add(createText("Unfortunately you lost!",20, 200, 150));
+        list.add(createText("Press Enter to try again.",20, 200, 400));
 
         return new Scene(root, GameStateUpdate.WIDTH, GameStateUpdate.HEIGHT);
     }
@@ -30,13 +36,6 @@ public class UIElements {
     public Scene createEndSplashScreen() {
         return null;
     }
-
-//    public void keepScore(Scene scene, Text t, GamePaddle player) {
-//
-//        Text newMessage = updateText(t, "Score is: " + player.lives);
-//        Group g = (Group) scene.getRoot();
-//        g.getChildren().add(newMessage);
-//    }
 
     public Text createText(String s, int font, int x, int y) {
         Text text = new Text();
