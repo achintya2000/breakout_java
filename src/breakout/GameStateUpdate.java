@@ -38,6 +38,7 @@ public class GameStateUpdate extends Application {
     public static final String EXTRA_BALL = "extraballpower.gif";
     public static final String LEVEL_1 = "./resources/level1.txt";
     public static final String LEVEL_2 = "./resources/level2.txt";
+    private static final String LEVEL_3 = "./resources/level3.txt";
 
     //static Random random = new Random();
     public static double BALL_SPEED_X = 0;
@@ -205,23 +206,7 @@ public class GameStateUpdate extends Application {
             }
         }
 
-        if (levelGenerator.brickList != null) {
-            int sizeOfLevel = levelGenerator.brickList.size();
-            int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
-
-            if (numOfNull == sizeOfLevel) {
-                scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
-                primaryStage.setScene(scene);
-                scene.setOnKeyPressed(e -> {
-                    try {
-                        handle(e.getCode());
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                });
-            }
-
-        }
+        createLevelWhenPreviousSucceeded();
 
         if (gamePaddle.lives == 0) {
             gamePaddle.lives = 3;
@@ -235,20 +220,6 @@ public class GameStateUpdate extends Application {
                 }
             });
         }
-
-//        Shape intersection = Shape.intersect(gamePaddle, ball);
-//        if (intersection.getBoundsInLocal().getWidth() != -1) {
-//            double paddle_left = gamePaddle.getBoundsInParent().getMinX();
-//            double paddle_right = gamePaddle.getBoundsInParent().getMaxX();
-//            double ball_center = ball.getCenterX();
-//            boolean left = paddle_left - ball_center > 0;
-//            boolean right = paddle_right - ball_center < 0;
-//            if (left || right) {
-//                ball.setCenterY(ball.getCenterY() + 5);
-//                BALL_SPEED_X *= -1;
-//            }
-//            BALL_SPEED_Y *= -1;
-//        }
 
     }
 
@@ -282,6 +253,30 @@ public class GameStateUpdate extends Application {
         ball.resetBallLocation(300, 450);
         BALL_SPEED_X = 0;
         BALL_SPEED_Y = 150;
+    }
+
+    public void createLevelWhenPreviousSucceeded() throws IOException {
+        if (levelGenerator.brickList != null) {
+            int sizeOfLevel = levelGenerator.brickList.size();
+            int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
+
+            if (numOfNull == sizeOfLevel) {
+                resetBall();
+                if (sizeOfLevel == 15) {
+                    scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
+                } else if (sizeOfLevel == 20) {
+                    scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_3);
+                }
+                primaryStage.setScene(scene);
+                scene.setOnKeyPressed(e -> {
+                    try {
+                        handle(e.getCode());
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                });
+            }
+        }
     }
 
     public void handle(KeyCode event) throws IOException {
