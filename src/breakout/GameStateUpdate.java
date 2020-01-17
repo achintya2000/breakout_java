@@ -39,10 +39,10 @@ public class GameStateUpdate extends Application {
     public static final String LEVEL_1 = "./resources/level1.txt";
     public static final String LEVEL_2 = "./resources/level2.txt";
 
-    static Random random = new Random();
-    public static int BALL_SPEED_X = 80 + random.nextInt(20);
-    public static int BALL_SPEED_Y = -80 - random.nextInt(20);
-    public static double BALL_SPEED_TOTAL = Math.sqrt(Math.pow(BALL_SPEED_Y, 2) + Math.pow(BALL_SPEED_X,2));
+    //static Random random = new Random();
+    public static double BALL_SPEED_X = 0;
+    public static double BALL_SPEED_Y = 150;
+
     public static final int POWER_UP_VELOCITY = 80;
 
     private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
@@ -113,30 +113,16 @@ public class GameStateUpdate extends Application {
 
         updateBallState(elapsedTime);
 
-        //uiElementsGenerator.keepScore(scene, scoreText, gamePaddle);
+        determineBallDirectionFromHittingPaddle();
 
-        if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
-            BALL_SPEED_X *= -1;
-        }
-
-        if (ball.getBoundsInParent().getMinY() <= 0) {
-            BALL_SPEED_Y *= -1;
-        }
+        reverseBallDirectionFromHittingWall();
 
         if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
-            ball.resetBall(300, 400);
+            resetBall();
             gamePaddle.lives--;
             uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
         }
 
-        if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
-//            if(gamePaddle.getBoundsInParent().getMaxX() - 15 < ball.getBoundsInParent().getCenterX()) {
-//                BALL_SPEED_Y *= -.9;
-//                BALL_SPEED_X *= -1;
-//            }
-
-            BALL_SPEED_Y *= -1;
-        }
 
         if (levelGenerator.brickList != null) {
             for (Sprite sB : levelGenerator.brickList) {
@@ -146,14 +132,25 @@ public class GameStateUpdate extends Application {
                         double centerBallX = ball.getBoundsInParent().getCenterX();
                         double centerBallY = ball.getBoundsInParent().getCenterY();
 
-                        if ((centerBallX <= sB.getBoundsInParent().getMinX()
-                                && centerBallY <= sB.getBoundsInParent().getMinY()) ||
-                                (centerBallX >= sB.getBoundsInParent().getMaxX())
-                                        && centerBallY <= sB.getBoundsInParent().getMinY()) {
-                            BALL_SPEED_X *= -1;
-                        } else {
+//                        if ((centerBallX <= sB.getBoundsInParent().getMinX()
+//                                && centerBallY <= sB.getBoundsInParent().getMinY()) ||
+//                                (centerBallX >= sB.getBoundsInParent().getMaxX())
+//                                        && centerBallY <= sB.getBoundsInParent().getMinY()) {
+//                            BALL_SPEED_X *= -1;
+//                        } else {
+//                            BALL_SPEED_Y *= -1;
+//                        }
+                        if (centerBallX > ball.getBoundsInParent().getMinX() && centerBallX < ball.getBoundsInParent().getMaxX()) {
+                            System.out.println(centerBallX);
+                            System.out.println(ball.getBoundsInParent().getMinX());
+                            System.out.println(ball.getBoundsInParent().getMaxX());
                             BALL_SPEED_Y *= -1;
+                        } else {
+                            System.out.println(centerBallX);
+                            System.out.println();
+                            BALL_SPEED_X *= -1;
                         }
+
                         if (sB.type.equals("simpleBrick")) {
                             sB.setImage(null);
                         } else if (sB.type.equals("lifeBrick")) {
@@ -197,6 +194,12 @@ public class GameStateUpdate extends Application {
             for (PowerUp pU : powerUpManager) {
                 pU.setY(pU.getY() + POWER_UP_VELOCITY * elapsedTime);
                 if (pU.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+                    if(pU.getImage() != null) {
+                        if (pU.type.equals("powerUpLife")) {
+                            gamePaddle.lives++;
+                            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
+                        }
+                    }
                     pU.setImage(null);
                 }
             }
@@ -254,7 +257,32 @@ public class GameStateUpdate extends Application {
         ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
     }
 
+    public void determineBallDirectionFromHittingPaddle() {
+        if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+            double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
+            double posX = (ball.getBoundsInParent().getCenterX() - gamePaddle.getBoundsInParent().getCenterX()) / (gamePaddle.getBoundsInLocal().getWidth() / 2);
+            double influence = 0.75;
 
+            BALL_SPEED_X = BALL_SPEED_XY * posX * influence;
+            BALL_SPEED_Y = Math.sqrt(BALL_SPEED_XY * BALL_SPEED_XY - BALL_SPEED_X * BALL_SPEED_X) * (BALL_SPEED_Y > 0 ? -1 : 1);
+        }
+    }
+
+    public void reverseBallDirectionFromHittingWall() {
+        if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
+            BALL_SPEED_X *= -1;
+        }
+
+        if (ball.getBoundsInParent().getMinY() <= 0) {
+            BALL_SPEED_Y *= -1;
+        }
+    }
+
+    public void resetBall() {
+        ball.resetBallLocation(300, 450);
+        BALL_SPEED_X = 0;
+        BALL_SPEED_Y = 150;
+    }
 
     public void handle(KeyCode event) throws IOException {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
@@ -274,7 +302,7 @@ public class GameStateUpdate extends Application {
             }
         }
         if (event == KeyCode.R) {
-            ball.resetBall(300, 400);
+            resetBall();
         }
 
         if (event == KeyCode.ENTER) {

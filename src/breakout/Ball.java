@@ -10,7 +10,7 @@ public class Ball extends Sprite {
         setY(y);
     }
 
-    void resetBall(int x, int y) {
+    public void resetBallLocation(int x, int y) {
         setX(x);
         setY(y);
     }

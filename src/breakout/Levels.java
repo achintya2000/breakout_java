@@ -81,8 +81,8 @@ public class Levels {
 
     public ArrayList<String> readTextFile(String path) throws IOException {
         String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
-        ArrayList<String> test = new ArrayList<>();
-        test.addAll(Arrays.asList(content.split(" ")));
-        return test;
+        ArrayList<String> levelString = new ArrayList<>();
+        levelString.addAll(Arrays.asList(content.split(" ")));
+        return levelString;
     }
 }
