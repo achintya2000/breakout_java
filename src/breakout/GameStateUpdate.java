@@ -21,6 +21,7 @@ public class GameStateUpdate extends Application {
     public static final int MILLISECOND_DELAY = 1000 / FRAMES_PER_SECOND;
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
     public static final int POWER_UP_VELOCITY = 80;
+    public static final int GOD_MODE_LIVES_MODIFIER = 1000000;
     public static double BALL_SPEED_X = 0;
     public static double BALL_SPEED_Y = 150;
 
@@ -298,11 +299,13 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.B) {
-            for (Sprite sB : levelGenerator.brickList) {
-                if (sB.type.equals("bombBrick")) {
-                    sB.setImage(null);
-                }
-            }
+            removeBombBrick();
+        }
+
+        if (event == KeyCode.G) {
+            removeBombBrick();
+            gamePaddle.lives += GOD_MODE_LIVES_MODIFIER;
+            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
         }
 
         if (event == KeyCode.ESCAPE) {
@@ -329,6 +332,14 @@ public class GameStateUpdate extends Application {
             return ballSlow;
         } else {
             return null;
+        }
+    }
+
+    public void removeBombBrick() {
+        for (Sprite sB : levelGenerator.brickList) {
+            if (sB.type.equals("bombBrick")) {
+                sB.setImage(null);
+            }
         }
     }
 
