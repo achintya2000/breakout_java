@@ -31,10 +31,10 @@ public class UIElements {
         return scene;
     }
 
-    public Scene createEndSplashScreen() {
+    public Scene createEndSplashScreen(int score) {
         Group root = new Group();
         root.getChildren().add(createText("Congratulations You Won!", 20, 200, 150));
-        root.getChildren().add(createText("You're final score was: ", 20, 200, 150));
+        root.getChildren().add(createText("You're final score was: " + score, 20, 200, 150));
         root.getChildren().add(createText("Press Enter to play Again.", 20, 200, 400));
         Scene scene = new Scene(root, GameStateUpdate.WIDTH, GameStateUpdate.HEIGHT);
         scene.setFill(Color.BLACK);

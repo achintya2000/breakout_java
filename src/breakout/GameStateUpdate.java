@@ -27,7 +27,6 @@ public class GameStateUpdate extends Application {
 
     public static final String BALL_IMAGE = "ball.gif";
     public static final String PADDLE_IMAGE = "paddle.gif";
-    public static final String PADDLE_IMAGE_LARGE = "paddle_long.gif";
     public static final String BRICK_IMAGE_1 = "brick1.gif";
     public static final String EXTRA_BALL = "extraballpower.gif";
     public static final String LONG_PADDLE = "pointspower.gif";
@@ -246,7 +245,9 @@ public class GameStateUpdate extends Application {
 
             if (numOfNull == sizeOfLevel) {
                 resetBall();
-                if (numOfNull == 25) {
+                if (numOfNull == 30) {
+                    uiElementsGenerator.createEndSplashScreen(gamePaddle.score);
+                } else if (numOfNull == 25) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_3);
                 } else if (numOfNull == 20) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
@@ -285,27 +286,17 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.ENTER) {
-            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_1);
-            primaryStage.setScene(scene);
-            scene.setOnKeyPressed(e -> {
-                try {
-                    handleKeyPress(e.getCode());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
+            updateGameScene(LEVEL_1);
         }
 
-        if (event == KeyCode.DIGIT1) {
-            scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_1);
-            primaryStage.setScene(scene);
-            scene.setOnKeyPressed(e -> {
-                try {
-                    handleKeyPress(e.getCode());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
+        if (event.isDigitKey()) {
+            if (event == KeyCode.DIGIT1) {
+                updateGameScene(LEVEL_1);
+            } else if (event == KeyCode.DIGIT2) {
+                updateGameScene(LEVEL_2);
+            } else {
+                updateGameScene(LEVEL_3);
+            }
         }
 
         if (event == KeyCode.S) {
@@ -326,6 +317,18 @@ public class GameStateUpdate extends Application {
             Platform.exit();
         }
 
+    }
+
+    private void updateGameScene(String level1) throws IOException {
+        scene = levelGenerator.drawALevel(ball, gamePaddle, level1);
+        primaryStage.setScene(scene);
+        scene.setOnKeyPressed(e -> {
+            try {
+                handleKeyPress(e.getCode());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
 
@@ -357,7 +360,7 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    public void modifyBrickLives() {
+    private void modifyBrickLives() {
         for (Sprite sB : levelGenerator.brickList) {
             if (sB.type.equals("multiBrick")) {
                 sB.lives = 1;

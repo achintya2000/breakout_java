@@ -15,19 +15,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Levels {
-    public static final String BRICK_IMAGE_1 = "brick1.gif";
-    public static final String BRICK_IMAGE_2 = "brick2.gif";
-    public static final String BRICK_IMAGE_3 = "brick10.gif";
-    public static final String BRICK_IMAGE_4 = "brick4.gif";
-    public static final String BALL_IMAGE = "ball.gif";
-    public static final String PADDLE_IMAGE = "paddle.gif";
-    public static final String PADDLE_IMAGE_LARGE = "paddle_long.gif";
-    public static final int WIDTH = 600;
-    public static final int HEIGHT = 600;
+    private static final String BRICK_IMAGE_1 = "brick1.gif";
+    private static final String BRICK_IMAGE_2 = "brick2.gif";
+    private static final String BRICK_IMAGE_3 = "brick10.gif";
+    private static final String BRICK_IMAGE_4 = "brick4.gif";
+    private static final String PADDLE_IMAGE_LARGE = "paddle_long.gif";
+    private static final int WIDTH = 600;
+    private static final int HEIGHT = 600;
 
     ArrayList<Sprite> brickList;
 
-    //TilePane tilePane = new TilePane();
     TilePane tilePane;
     Group root;
 
@@ -77,13 +74,6 @@ public class Levels {
         return root;
     }
 
-    public ArrayList<String> readTextFile(String path) throws IOException {
-        String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
-        ArrayList<String> levelString = new ArrayList<>();
-        levelString.addAll(Arrays.asList(content.split(" ")));
-        return levelString;
-    }
-
     public GamePaddle makePaddleLarge(Group root, GamePaddle gamePaddle) {
         String name = gamePaddle.type;
         int lives = gamePaddle.lives;
@@ -91,5 +81,10 @@ public class Levels {
         GamePaddle gamePaddleBig = new GamePaddle(name, lives, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE_LARGE)), 300, 500, gamePaddle.score);
         root.getChildren().add(gamePaddleBig);
         return gamePaddleBig;
+    }
+
+    private ArrayList<String> readTextFile(String path) throws IOException {
+        String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
+        return new ArrayList<>(Arrays.asList(content.split(" ")));
     }
 }
