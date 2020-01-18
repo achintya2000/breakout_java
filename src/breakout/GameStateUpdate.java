@@ -4,6 +4,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
@@ -165,7 +166,7 @@ public class GameStateUpdate extends Application {
                                 uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
                                 break;
                             case "sizeUP":
-                                makePaddleLarge();
+                                gamePaddle = levelGenerator.makePaddleLarge((Group) scene.getRoot(), gamePaddle);
                                 break;
                             case "ballSlow":
                                 BALL_SPEED_Y *= .8;
@@ -231,12 +232,12 @@ public class GameStateUpdate extends Application {
         if (levelGenerator.brickList != null) {
             int sizeOfLevel = levelGenerator.brickList.size();
             int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
-            
+
             if (numOfNull == sizeOfLevel) {
                 resetBall();
-                if (numOfNull == 8) {
+                if (numOfNull == 25) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_3);
-                } else if (numOfNull == 5) {
+                } else if (numOfNull == 20) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
                 }
                 primaryStage.setScene(scene);
@@ -296,25 +297,30 @@ public class GameStateUpdate extends Application {
             });
         }
 
+        if (event == KeyCode.B) {
+            for (Sprite sB : levelGenerator.brickList) {
+                if (sB.type.equals("bombBrick")) {
+                    sB.setImage(null);
+                }
+            }
+        }
+
         if (event == KeyCode.ESCAPE) {
             Platform.exit();
         }
 
     }
 
-    public void makePaddleLarge() {
-        gamePaddle.setImage(new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE_LARGE)));
-    }
 
     public PowerUp randomlyCreatePowerUp(Sprite sB) {
-        if (Math.random() < 0.3) {
+        if (Math.random() < 0.2) {
             PowerUp sizeUP = new PowerUp("sizeUP",
                     1,
                     new Image(this.getClass().getClassLoader().getResourceAsStream(LONG_PADDLE)),
                     sB.getBoundsInParent().getCenterX(),
                     sB.getBoundsInParent().getCenterY());
             return sizeUP;
-        } else if (Math.random() < 0.4) {
+        } else if (Math.random() < 0.3) {
             PowerUp ballSlow = new PowerUp("ballSlow",
                     1,
                     new Image(this.getClass().getClassLoader().getResourceAsStream(SLOW_BALL)),

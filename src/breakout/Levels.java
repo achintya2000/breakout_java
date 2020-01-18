@@ -21,6 +21,7 @@ public class Levels {
     public static final String BRICK_IMAGE_4 = "brick4.gif";
     public static final String BALL_IMAGE = "ball.gif";
     public static final String PADDLE_IMAGE = "paddle.gif";
+    public static final String PADDLE_IMAGE_LARGE = "paddle_long.gif";
     public static final int WIDTH = 600;
     public static final int HEIGHT = 600;
 
@@ -79,5 +80,14 @@ public class Levels {
         ArrayList<String> levelString = new ArrayList<>();
         levelString.addAll(Arrays.asList(content.split(" ")));
         return levelString;
+    }
+
+    public GamePaddle makePaddleLarge(Group root, GamePaddle gamePaddle) {
+        String name = gamePaddle.type;
+        int lives = gamePaddle.lives;
+        root.getChildren().removeAll(gamePaddle);
+        GamePaddle gamePaddleBig = new GamePaddle(name, lives, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE_LARGE)), 300, 500);
+        root.getChildren().add(gamePaddleBig);
+        return gamePaddleBig;
     }
 }
