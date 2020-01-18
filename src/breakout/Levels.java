@@ -2,23 +2,17 @@ package breakout;
 
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
 
 public class Levels {
     public static final String BRICK_IMAGE_1 = "brick1.gif";
@@ -67,10 +61,11 @@ public class Levels {
         tilePane.getChildren().addAll(brickList);
         root.getChildren().add(tilePane);
 
-        UIElements.scoreText = uiElementsGenerator.createText("Lives left: " + gamePaddle.lives, 20, 50, 500);
+        UIElements.scoreText = uiElementsGenerator.createText("Lives left: " + gamePaddle.lives, 20, 25, 550);
         root.getChildren().add(UIElements.scoreText);
 
         Scene newScene = new Scene(root, HEIGHT, WIDTH);
+        newScene.setFill(Color.BLACK);
 
         return newScene;
     }
