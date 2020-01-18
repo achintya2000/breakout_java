@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 
 public class UIElements {
     public static final String TITLE = "Achintya's Breakout Game";
+    public static Text lifeText;
     public static Text scoreText;
 
     public Scene createMainSplashScreen() {

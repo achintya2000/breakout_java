@@ -62,7 +62,9 @@ public class Levels {
         tilePane.getChildren().addAll(brickList);
         root.getChildren().add(tilePane);
 
-        UIElements.scoreText = uiElementsGenerator.createText("Lives left: " + gamePaddle.lives, 20, 25, 550);
+        UIElements.lifeText = uiElementsGenerator.createText("Lives left: " + gamePaddle.lives, 20, 25, 550);
+        root.getChildren().add(UIElements.lifeText);
+        UIElements.scoreText = uiElementsGenerator.createText("Score: " + gamePaddle.score, 20, 450, 550);
         root.getChildren().add(UIElements.scoreText);
 
         Scene newScene = new Scene(root, HEIGHT, WIDTH);
@@ -86,7 +88,7 @@ public class Levels {
         String name = gamePaddle.type;
         int lives = gamePaddle.lives;
         root.getChildren().removeAll(gamePaddle);
-        GamePaddle gamePaddleBig = new GamePaddle(name, lives, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE_LARGE)), 300, 500);
+        GamePaddle gamePaddleBig = new GamePaddle(name, lives, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE_LARGE)), 300, 500, gamePaddle.score);
         root.getChildren().add(gamePaddleBig);
         return gamePaddleBig;
     }

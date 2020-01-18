@@ -41,9 +41,9 @@ public class GameStateUpdate extends Application {
     UIElements uiElementsGenerator = new UIElements();
     Scene scene;
 
-    private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500);
+    private GamePaddle gamePaddle = new GamePaddle("player", 3, new Image(this.getClass().getClassLoader().getResourceAsStream(PADDLE_IMAGE)), 300, 500, 0);
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
-    private ArrayList<PowerUp> powerUpManager = new ArrayList<PowerUp>();
+    private ArrayList<PowerUp> powerUpManager = new ArrayList<>();
 
     // Initialize javaFX gui
     public static void main(String[] args) {
@@ -58,7 +58,7 @@ public class GameStateUpdate extends Application {
 
         scene.setOnKeyPressed(e -> {
             try {
-                handle(e.getCode());
+                handleKeyPress(e.getCode());
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -85,33 +85,48 @@ public class GameStateUpdate extends Application {
 
         updateBallState(elapsedTime);
 
-        determineBallDirectionFromHittingPaddle();
+        updateBallStateFromPaddle();
 
-        reverseBallDirectionFromHittingWall();
+        updateBallStateFromWall();
 
         if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
             resetBall();
             gamePaddle.lives--;
-            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
+            updateLifeText();
         }
 
 
+        updateBallStateFromBricks();
+
+        updatePowerUpState(elapsedTime);
+
+        updateLevelOrWinState();
+
+        if (gamePaddle.lives == 0) {
+            gamePaddle.lives = 3;
+            scene = uiElementsGenerator.createFailureScreen();
+            primaryStage.setScene(scene);
+            scene.setOnKeyPressed(e -> {
+                try {
+                    handleKeyPress(e.getCode());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            });
+        }
+
+    }
+
+    public void updateBallStateFromBricks() {
         if (levelGenerator.brickList != null) {
             for (Sprite sB : levelGenerator.brickList) {
                 if (sB.getImage() != null) {
                     if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
 
-                        double centerBallX = ball.getBoundsInParent().getCenterX();
-                        double centerBallY = ball.getBoundsInParent().getCenterY();
+                        updateScoreText();
 
-//                        if ((centerBallX <= sB.getBoundsInParent().getMinX()
-//                                && centerBallY <= sB.getBoundsInParent().getMinY()) ||
-//                                (centerBallX >= sB.getBoundsInParent().getMaxX())
-//                                        && centerBallY <= sB.getBoundsInParent().getMinY()) {
-//                            BALL_SPEED_X *= -1;
-//                        } else {
-//                            BALL_SPEED_Y *= -1;
-//                        }
+                        double centerBallX = ball.getBoundsInParent().getCenterX();
+
                         if (centerBallX > ball.getBoundsInParent().getMinX() && centerBallX < ball.getBoundsInParent().getMaxX()) {
                             BALL_SPEED_Y *= -1;
                         } else {
@@ -149,13 +164,24 @@ public class GameStateUpdate extends Application {
                         } else if (sB.type.equals("bombBrick")) {
                             gamePaddle.lives--;
                             sB.setImage(null);
-                            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
+                            updateLifeText();
                         }
                     }
                 }
             }
         }
+    }
 
+    private void updateLifeText() {
+        uiElementsGenerator.updateText(UIElements.lifeText, "Lives left: " + gamePaddle.lives);
+    }
+
+    private void updateScoreText() {
+        gamePaddle.score += 100;
+        uiElementsGenerator.updateText(UIElements.scoreText, "Score: " + gamePaddle.score);
+    }
+
+    public void updatePowerUpState(double elapsedTime) {
         if (powerUpManager != null) {
             for (PowerUp pU : powerUpManager) {
                 pU.setY(pU.getY() + POWER_UP_VELOCITY * elapsedTime);
@@ -164,7 +190,7 @@ public class GameStateUpdate extends Application {
                         switch (pU.type) {
                             case "powerUpLife":
                                 gamePaddle.lives++;
-                                uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
+                                updateLifeText();
                                 break;
                             case "sizeUP":
                                 gamePaddle = levelGenerator.makePaddleLarge((Group) scene.getRoot(), gamePaddle);
@@ -179,22 +205,6 @@ public class GameStateUpdate extends Application {
                 }
             }
         }
-
-        createLevelWhenPreviousSucceeded();
-
-        if (gamePaddle.lives == 0) {
-            gamePaddle.lives = 3;
-            scene = uiElementsGenerator.createFailureScreen();
-            primaryStage.setScene(scene);
-            scene.setOnKeyPressed(e -> {
-                try {
-                    handle(e.getCode());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-        }
-
     }
 
     public void updateBallState(double elapsedTime) {
@@ -202,7 +212,7 @@ public class GameStateUpdate extends Application {
         ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
     }
 
-    public void determineBallDirectionFromHittingPaddle() {
+    public void updateBallStateFromPaddle() {
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
             double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
             double posX = (ball.getBoundsInParent().getCenterX() - gamePaddle.getBoundsInParent().getCenterX()) / (gamePaddle.getBoundsInLocal().getWidth() / 2);
@@ -213,7 +223,7 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    public void reverseBallDirectionFromHittingWall() {
+    public void updateBallStateFromWall() {
         if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
             BALL_SPEED_X *= -1;
         }
@@ -229,7 +239,7 @@ public class GameStateUpdate extends Application {
         BALL_SPEED_Y = 150;
     }
 
-    public void createLevelWhenPreviousSucceeded() throws IOException {
+    public void updateLevelOrWinState() throws IOException {
         if (levelGenerator.brickList != null) {
             int sizeOfLevel = levelGenerator.brickList.size();
             int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
@@ -244,7 +254,7 @@ public class GameStateUpdate extends Application {
                 primaryStage.setScene(scene);
                 scene.setOnKeyPressed(e -> {
                     try {
-                        handle(e.getCode());
+                        handleKeyPress(e.getCode());
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -253,7 +263,7 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    public void handle(KeyCode event) throws IOException {
+    public void handleKeyPress(KeyCode event) throws IOException {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
             if (event == KeyCode.RIGHT) {
                 gamePaddle.setX(gamePaddle.getX() + 20);
@@ -279,23 +289,27 @@ public class GameStateUpdate extends Application {
             primaryStage.setScene(scene);
             scene.setOnKeyPressed(e -> {
                 try {
-                    handle(e.getCode());
+                    handleKeyPress(e.getCode());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             });
         }
 
-        if (event == KeyCode.Q) {
+        if (event == KeyCode.DIGIT1) {
             scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_1);
             primaryStage.setScene(scene);
             scene.setOnKeyPressed(e -> {
                 try {
-                    handle(e.getCode());
+                    handleKeyPress(e.getCode());
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
             });
+        }
+
+        if (event == KeyCode.S) {
+            modifyBrickLives();
         }
 
         if (event == KeyCode.B) {
@@ -305,7 +319,7 @@ public class GameStateUpdate extends Application {
         if (event == KeyCode.G) {
             removeBombBrick();
             gamePaddle.lives += GOD_MODE_LIVES_MODIFIER;
-            uiElementsGenerator.updateText(UIElements.scoreText, "Lives left: " + gamePaddle.lives);
+            updateLifeText();
         }
 
         if (event == KeyCode.ESCAPE) {
@@ -339,6 +353,14 @@ public class GameStateUpdate extends Application {
         for (Sprite sB : levelGenerator.brickList) {
             if (sB.type.equals("bombBrick")) {
                 sB.setImage(null);
+            }
+        }
+    }
+
+    public void modifyBrickLives() {
+        for (Sprite sB : levelGenerator.brickList) {
+            if (sB.type.equals("multiBrick")) {
+                sB.lives = 1;
             }
         }
     }
