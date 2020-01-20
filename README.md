@@ -83,4 +83,7 @@ design and not functionality. I did really appreciate the lab that we did
 because it gave us a lot of example code to get us started and images to use
 in our game. In the future I think maybe a more concrete intro to JavaFx
 would be useful. I think if some design tips or recommended design structures 
-for the game were offered, it would be very useful.
+for the game were offered, it would be very useful. What is extremely frustrating
+is having to write so much in the javadoc. The requirement to write purpose, 
+assumptions, an example of how to use it, and dependencies for classes and 
+methods is a lot and could be toned down.

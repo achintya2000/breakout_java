@@ -8,6 +8,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -17,10 +19,11 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
- * The GameStateUpdate file is the main class of the breakout project. It maintains the overall state of the game
+ * Purpose: The GameStateUpdate file is the main class of the breakout project. It maintains the overall state of the game
  * through time and call upon various function from within and outside this class to do so. The design goal of this
  * class was to manage all data, information, and visuals that were affected by change. It takes of the movement of
  * key objects like the ball and paddle. It also manages collisions and determines the direction the ball must go as
@@ -29,7 +32,16 @@ import java.util.ArrayList;
  * to update lives and score. Most importantly it transitions between levels and splash screens when appropriate.
  * All of the functionality mentioned above is not managed directly here. The purpose of the other classes was to
  * divide the problem in to smaller functional goals and all those come together and interact together in this class.
+ * Depends on all other classes in breakout package as well as File IO, AudioSystem, and standard JavaFx classes such
+ * as Group, Scene, and Stage.
+ * We assume that all files that are needed exist in the resources. If there was no level text files or audio the class
+ * would fail.
+ * This class should be used to contain all info about the game that progresses through time. An example on how to use
+ * it would be to include methods that involve animations or updates in the step so that they can be displayed properly
+ * to the user. Also it is ideal to include logic that creates instances of other classes on demand (like power ups) here
+ * and to keep track of their functions by looking through them in the step function since it's run forever.
  */
+
 public class GameStateUpdate extends Application {
 
     public static final int WIDTH = 600;
@@ -53,6 +65,8 @@ public class GameStateUpdate extends Application {
     public static final String LEVEL_2 = "./resources/level2.txt";
     public static final String LEVEL_3 = "./resources/level3.txt";
     public static final String SOUND_CLIP = "./resources/pong_beep.wav";
+    public static final String BACKGROUND_CLIP = "./resources/music.wav";
+
 
     Stage primaryStage;
     Levels levelGenerator = new Levels();
@@ -78,7 +92,15 @@ public class GameStateUpdate extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
-
+        try {
+            playBackGroundMusic();
+        } catch (LineUnavailableException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        }
         scene = uiElementsGenerator.createMainSplashScreen();
 
         scene.setOnKeyPressed(e -> {
@@ -176,14 +198,14 @@ public class GameStateUpdate extends Application {
      * This function manages ball and brick collision interaction. It determines the direction to ball should
      * bounce back to, updates score text, and randomly generates PowerUp objects.
      */
-    private void updateBallStateFromBricks() {
+    private void updateBallStateFromBricks() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         if (levelGenerator.brickList != null) {
             for (Sprite sB : levelGenerator.brickList) {
                 if (sB.getImage() != null) {
                     if (sB.getBoundsInParent().intersects(ball.getBoundsInParent())) {
 
                         updateScoreText();
-
+                        playSound();
                         double centerBallX = ball.getBoundsInParent().getCenterX();
 
                         if (centerBallX > ball.getBoundsInParent().getMinX() && centerBallX < ball.getBoundsInParent().getMaxX()) {
@@ -408,6 +430,10 @@ public class GameStateUpdate extends Application {
                 updateGameLevelScene(LEVEL_3);
             }
         }
+        if (event == KeyCode.L) {
+            gamePaddle.lives++;
+            updateLifeText();
+        }
 
         if (event == KeyCode.S) {
             modifyBrickLives();
@@ -494,6 +520,18 @@ public class GameStateUpdate extends Application {
         Clip clip = AudioSystem.getClip();
         clip.open(AudioSystem.getAudioInputStream(new File(SOUND_CLIP)));
         clip.start();
+    }
+
+    /**
+     * Plays wav file for background music.
+     * @throws LineUnavailableException Required to play sound.
+     * @throws IOException Required to play sound.
+     * @throws UnsupportedAudioFileException Required to play sound.
+     */
+    private void playBackGroundMusic() throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+        Clip clip = AudioSystem.getClip();
+        clip.open(AudioSystem.getAudioInputStream(new File(BACKGROUND_CLIP)));
+        clip.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
 }

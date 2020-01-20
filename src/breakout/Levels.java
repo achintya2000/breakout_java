@@ -15,7 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * The levels class contains all data and information required to generate a level from a text file.
+ * Purpose: The levels class contains all data and information required to generate a level from a text file.
+ * The assumptions used are that the level files are formatted correctly and actually exist.
+ * Depends on File IO packages, TilePane, Group, UIElements, GamePaddle, Ball, and Scene.
+ * Example: Create object of Class - Levels l = new Levels(). Provide a ball, game paddle and path to
+ * level file and you can use the function makeLevel to return a scene that displays all that info.
+ * If making a new level you don't need to update this file. Update GameStateUpdate to add an else if
+ * case to updateLevelOrWinState and that is all that's needed to create levels.
  */
 public class Levels {
     private static final String BRICK_IMAGE_1 = "brick1.gif";
@@ -37,6 +43,8 @@ public class Levels {
      * This is a highly modular function that can take in a path to any text file that is formatted properly and
      * generate a level from it. Tile Panes are used to automatically render the bricks in an organized nx5 grid.
      * Score and lives information is also attached to the scene for the user.
+     * Assume that proper ball and paddle passed so they may be reattached to scene. Also assume proper files are found
+     * for the bricks or else levels will just be blank in the game.
      * @param ball The ball object that is created and must be rendered in the scene.
      * @param gamePaddle The game paddle object that is created and must be rendered in the scene.
      * @param path Path to the level text file which you need to draw.
@@ -87,6 +95,7 @@ public class Levels {
 
     /**
      * Returns the group where the rest of level content is held if another object needs to be added to the same scene.
+     * Assume a group has been created through the makeLevel function or else returned group will be null.
      * @return Group object where rest of level content is held.
      */
     public Group returnGroup() {
@@ -95,6 +104,8 @@ public class Levels {
 
     /**
      * This is function is called when you obtain the big paddle power up that greatly increases the size of your paddle.
+     * Assume correct file is found for game paddle big or else nothing will display to user. Also assume correct group
+     * and game paddle passed or else the old paddle won't be removed from the scene.
      * @param root Main group that contains level info so the new object can be added there.
      * @param gamePaddle The existing game paddle object that needs to be replaced by the big version.
      * @return A new game paddle object that is a bigger version of regular paddle.

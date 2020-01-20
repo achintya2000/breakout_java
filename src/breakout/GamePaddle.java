@@ -3,8 +3,12 @@ package breakout;
 import javafx.scene.image.Image;
 
 /**
- * The game paddle class is a child of Sprite and represents the player on the screen. Therefore in addition to the
+ * Purpose: The game paddle class is a child of Sprite and represents the player on the screen. Therefore in addition to the
  * standard Sprite fields it has unique parameters that represent the player score.
+ * Depends on Sprite and therefore ImageView.
+ * We assume all variables passed exist resources and in the proper window space.
+ * An example of how to use this would be to make an object of it in game state update and reset the paddle when the ball
+ * goes off screen.
  */
 public class GamePaddle extends Sprite {
     int score;
@@ -27,6 +31,7 @@ public class GamePaddle extends Sprite {
 
     /**
      * Set the location of the paddle to a specific location on the screen.
+     * We assume that the x and y values passed exist within the window.
      * @param x The x parameter represents horizontal direction in the window's scene and is used to
      *          set the paddle's location on the scene.
      * @param y The y parameter represents vertical direction in the window's scene and is used to
