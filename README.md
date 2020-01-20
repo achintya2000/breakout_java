@@ -56,6 +56,7 @@ Extra credit:
 - High score mechanic implemented so users will have a motivation
 to keep playing. 
 - Sound effect implemented when the ball hits the paddle.
+- Background music added that plays through entirety of game.
 
 ### Notes/Assumptions
 I believe the design of this program follows good object oriented principles
