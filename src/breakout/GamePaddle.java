@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
  * standard Sprite fields it has unique parameters that represent the player score.
  */
 public class GamePaddle extends Sprite {
+    int score;
     /**
      * This the default constructor for the game paddle class.
      * @param name Name string used to identify the object is sent to parent Sprite.
@@ -17,7 +18,6 @@ public class GamePaddle extends Sprite {
      * @param score The score represents the player's score and is attached to the game paddle as it
      *              represents the player.
      */
-    int score;
     GamePaddle(String name, int lives, Image image, int x, int y, int score) {
         super(name, lives, image);
         setX(x);

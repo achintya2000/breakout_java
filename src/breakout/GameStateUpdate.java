@@ -13,6 +13,17 @@ import javafx.util.Duration;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * The GameStateUpdate file is the main class of the breakout project. It maintains the overall state of the game
+ * through time and call upon various function from within and outside this class to do so. The design goal of this
+ * class was to manage all data, information, and visuals that were affected by change. It takes of the movement of
+ * key objects like the ball and paddle. It also manages collisions and determines the direction the ball must go as
+ * a result of those collisions. Other state changes the class manages include generating power ups when certain
+ * conditions are met and providing the results of obtaining those power ups as well. It also manages text changes
+ * to update lives and score. Most importantly it transitions between levels and splash screens when appropriate.
+ * All of the functionality mentioned above is not managed directly here. The purpose of the other classes was to
+ * divide the problem in to smaller functional goals and all those come together and interact together in this class.
+ */
 public class GameStateUpdate extends Application {
 
     public static final int WIDTH = 600;
@@ -22,6 +33,7 @@ public class GameStateUpdate extends Application {
     public static final double SECOND_DELAY = 1.0 / FRAMES_PER_SECOND;
     public static final int POWER_UP_VELOCITY = 80;
     public static final int GOD_MODE_LIVES_MODIFIER = 1000000;
+    public static int PADDLE_TRANSLATION_AMOUNT = 20;
     public static double BALL_SPEED_X = 0;
     public static double BALL_SPEED_Y = 150;
 
@@ -44,13 +56,20 @@ public class GameStateUpdate extends Application {
     private Ball ball = new Ball("ball", 1, new Image(this.getClass().getClassLoader().getResourceAsStream(BALL_IMAGE)), 300, 400);
     private ArrayList<PowerUp> powerUpManager = new ArrayList<>();
 
-    // Initialize javaFX gui
+    /**
+     * Initialize JavaFX GUI
+     * @param args Standard java syntax.
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * The JavaFx program starts here.
+     * @param primaryStage A primary stage is required to hold all the subsequent Group and Scene info.
+     */
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
         scene = uiElementsGenerator.createMainSplashScreen();
@@ -80,6 +99,12 @@ public class GameStateUpdate extends Application {
         animation.play();
     }
 
+    /**
+     * The step function is called repeatedly forever and is therefore the hub of all the game logic.
+     * Functions are called by their descriptive name to perform tasks to keep the game progressing.
+     * @param elapsedTime Time element important to do animation.
+     * @throws IOException Thrown because one of the methods below also throws i/o exception.
+     */
     private void step(double elapsedTime) throws IOException {
 
         updateBallMovementState(elapsedTime);
@@ -100,11 +125,18 @@ public class GameStateUpdate extends Application {
 
     }
 
+    /**
+     * This function animates the ball movement.
+     * @param elapsedTime Time required to perform animation
+     */
     private void updateBallMovementState(double elapsedTime) {
         ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
         ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
     }
 
+    /**
+     * This function handles the directional movement of the ball after hitting the paddle.
+     */
     private void updateBallStateFromPaddle() {
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
             double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
@@ -116,6 +148,9 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * This function reverses ball direction depending on which wall is hit.
+     */
     private void updateBallStateFromWall() {
         if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
             BALL_SPEED_X *= -1;
@@ -126,6 +161,10 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * This function manages ball and brick collision interaction. It determines the direction to ball should
+     * bounce back to, updates score text, and randomly generates PowerUp objects.
+     */
     private void updateBallStateFromBricks() {
         if (levelGenerator.brickList != null) {
             for (Sprite sB : levelGenerator.brickList) {
@@ -181,6 +220,9 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * If the ball goes out of bounds this function is called to reset the ball and paddle and update lives remaining.
+     */
     private void updatePlayerStateFromBallOutofBounds() {
         if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
             resetBall();
@@ -190,6 +232,11 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * This function manages the interaction between paddle and power up (if they come into contact) and all
+     * the specific functionality that comes with each power up.
+     * @param elapsedTime Time is required to animate power ups moving down.
+     */
     private void updatePowerUpState(double elapsedTime) {
         if (powerUpManager != null) {
             for (PowerUp pU : powerUpManager) {
@@ -216,6 +263,10 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * This function manages the level scenes and update levels based on which ones have already been completed.
+     * @throws IOException Thrown error for i/o exception.
+     */
     private void updateLevelOrWinState() throws IOException {
         if (levelGenerator.brickList != null) {
             int sizeOfLevel = levelGenerator.brickList.size();
@@ -237,6 +288,9 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * Function called to check if player is out of lives. If so it goes to failure screen.
+     */
     private void updateLossState() {
         if (gamePaddle.lives == 0) {
             gamePaddle.lives = 3;
@@ -245,25 +299,51 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * Function to reset location of ball.
+     */
     private void resetBall() {
         ball.setBallLocation(300, 400);
         BALL_SPEED_X = 0;
         BALL_SPEED_Y = 150;
     }
 
+    /**
+     * Function to reset location of paddle.
+     */
     private void resetPaddle() {
         gamePaddle.setPaddleLocation(300, 500);
     }
 
+    /**
+     * Function to update lives left.
+     */
     private void updateLifeText() {
         uiElementsGenerator.updateText(UIElements.lifeText, "Lives left: " + gamePaddle.lives);
     }
 
+    /**
+     * Function to updated player score.
+     */
     private void updateScoreText() {
         gamePaddle.score += 100;
         uiElementsGenerator.updateText(UIElements.scoreText, "Score: " + gamePaddle.score);
     }
 
+    /**
+     * This function creates a new scene using the Levels class and includes new brick config, ball, and paddle.
+     * @param level Constant path to level file needed to create a level.
+     * @throws IOException Thrown error for i/o exception.
+     */
+    private void updateGameLevelScene(String level) throws IOException {
+        scene = levelGenerator.drawALevel(ball, gamePaddle, level);
+        updateScene();
+    }
+
+    /**
+     * This function manages actually making the stage switch to a new scene and attaches the event handler
+     * to the new scene so that you don't lose keyboard functionality.
+     */
     private void updateScene() {
         primaryStage.setScene(scene);
         scene.setOnKeyPressed(e -> {
@@ -275,26 +355,26 @@ public class GameStateUpdate extends Application {
         });
     }
 
-    private void updateGameLevelScene(String level1) throws IOException {
-        scene = levelGenerator.drawALevel(ball, gamePaddle, level1);
-        updateScene();
-    }
-
+    /**
+     * This function manages all keyboard input.
+     * @param event Keyboard input event.
+     * @throws IOException Thrown error for i/o exception.
+     */
     private void handleKeyPress(KeyCode event) throws IOException {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
             if (event == KeyCode.RIGHT) {
-                gamePaddle.setX(gamePaddle.getX() + 20);
+                gamePaddle.setX(gamePaddle.getX() + PADDLE_TRANSLATION_AMOUNT);
             }
         } else if (gamePaddle.getBoundsInParent().getMinX() >= WIDTH - gamePaddle.getBoundsInLocal().getWidth()) {
             if (event == KeyCode.LEFT) {
-                gamePaddle.setX(gamePaddle.getX() - 20);
+                gamePaddle.setX(gamePaddle.getX() - PADDLE_TRANSLATION_AMOUNT);
             }
         } else {
             if (event == KeyCode.RIGHT) {
-                gamePaddle.setX(gamePaddle.getX() + 20);
+                gamePaddle.setX(gamePaddle.getX() + PADDLE_TRANSLATION_AMOUNT);
             }
             if (event == KeyCode.LEFT) {
-                gamePaddle.setX(gamePaddle.getX() - 20);
+                gamePaddle.setX(gamePaddle.getX() - PADDLE_TRANSLATION_AMOUNT);
             }
         }
         if (event == KeyCode.R) {
@@ -332,6 +412,10 @@ public class GameStateUpdate extends Application {
             updateLifeText();
         }
 
+        if (event == KeyCode.Z) {
+            PADDLE_TRANSLATION_AMOUNT = 30;
+        }
+
         if (event == KeyCode.ESCAPE) {
             Platform.exit();
         }
@@ -342,6 +426,11 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * This function is used to randomly generate (or not generate) a power up when a brick is destroyed.
+     * @param sB Parameter used to get x and y location needed to spawn a power up.
+     * @return Returns PowerUp object of randomly specified type.
+     */
     private PowerUp randomlyCreatePowerUp(Sprite sB) {
         if (Math.random() < 0.2) {
             PowerUp sizeUP = new PowerUp("sizeUP",
@@ -362,6 +451,9 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * Called as part of a cheat code to remove bomb bricks from the level.
+     */
     private void removeBombBrick() {
         for (Sprite sB : levelGenerator.brickList) {
             if (sB.type.equals("bombBrick")) {
@@ -370,6 +462,9 @@ public class GameStateUpdate extends Application {
         }
     }
 
+    /**
+     * Called as part of a cheat code to set all brick lives to 1 so they only take 1 hit to destroy.
+     */
     private void modifyBrickLives() {
         for (Sprite sB : levelGenerator.brickList) {
             if (sB.type.equals("multiBrick")) {

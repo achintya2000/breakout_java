@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- *
+ * The levels class contains all data and information required to generate a level from a text file.
  */
 public class Levels {
     private static final String BRICK_IMAGE_1 = "brick1.gif";
@@ -34,12 +34,14 @@ public class Levels {
     UIElements uiElementsGenerator = new UIElements();
 
     /**
-     *
-     * @param ball
-     * @param gamePaddle
-     * @param path
-     * @return
-     * @throws IOException
+     * This is a highly modular function that can take in a path to any text file that is formatted properly and
+     * generate a level from it. Tile Panes are used to automatically render the bricks in an organized nx5 grid.
+     * Score and lives information is also attached to the scene for the user.
+     * @param ball The ball object that is created and must be rendered in the scene.
+     * @param gamePaddle The game paddle object that is created and must be rendered in the scene.
+     * @param path Path to the level text file which you need to draw.
+     * @return A scene object that you can use to set what content is displayed to the user.
+     * @throws IOException Thrown if level text file is not found.
      */
     public Scene drawALevel(Ball ball, GamePaddle gamePaddle, String path) throws IOException {
         root = new Group();
@@ -84,18 +86,18 @@ public class Levels {
     }
 
     /**
-     *
-     * @return
+     * Returns the group where the rest of level content is held if another object needs to be added to the same scene.
+     * @return Group object where rest of level content is held.
      */
     public Group returnGroup() {
         return root;
     }
 
     /**
-     *
-     * @param root
-     * @param gamePaddle
-     * @return
+     * This is function is called when you obtain the big paddle power up that greatly increases the size of your paddle.
+     * @param root Main group that contains level info so the new object can be added there.
+     * @param gamePaddle The existing game paddle object that needs to be replaced by the big version.
+     * @return A new game paddle object that is a bigger version of regular paddle.
      */
     public GamePaddle makePaddleLarge(Group root, GamePaddle gamePaddle) {
         String name = gamePaddle.type;
@@ -107,10 +109,10 @@ public class Levels {
     }
 
     /**
-     *
-     * @param path
-     * @return
-     * @throws IOException
+     * Function that reads information from a text file.
+     * @param path String path to the level text file.
+     * @return Returns an array list of all the individual strings delimited by spaces that represent a brick.
+     * @throws IOException Thrown if file is not found.
      */
     private ArrayList<String> readTextFile(String path) throws IOException {
         String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
