@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"breakout","l":"Ball"},{"p":"breakout","l":"GamePaddle"},{"p":"breakout","l":"GameStateUpdate"},{"p":"breakout","l":"Levels"},{"p":"breakout","l":"MultiBrick"},{"p":"breakout","l":"PowerUp"},{"p":"breakout","l":"Sprite"},{"p":"breakout","l":"UIElements"}]
