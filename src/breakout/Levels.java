@@ -14,6 +14,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ *
+ */
 public class Levels {
     private static final String BRICK_IMAGE_1 = "brick1.gif";
     private static final String BRICK_IMAGE_2 = "brick2.gif";
@@ -30,8 +33,18 @@ public class Levels {
 
     UIElements uiElementsGenerator = new UIElements();
 
+    /**
+     *
+     * @param ball
+     * @param gamePaddle
+     * @param path
+     * @return
+     * @throws IOException
+     */
     public Scene drawALevel(Ball ball, GamePaddle gamePaddle, String path) throws IOException {
         root = new Group();
+        gamePaddle.setPaddleLocation(300, 500);
+        ball.setBallLocation(300, 400);
         root.getChildren().add(gamePaddle);
         root.getChildren().add(ball);
 
@@ -70,10 +83,20 @@ public class Levels {
         return newScene;
     }
 
+    /**
+     *
+     * @return
+     */
     public Group returnGroup() {
         return root;
     }
 
+    /**
+     *
+     * @param root
+     * @param gamePaddle
+     * @return
+     */
     public GamePaddle makePaddleLarge(Group root, GamePaddle gamePaddle) {
         String name = gamePaddle.type;
         int lives = gamePaddle.lives;
@@ -83,6 +106,12 @@ public class Levels {
         return gamePaddleBig;
     }
 
+    /**
+     *
+     * @param path
+     * @return
+     * @throws IOException
+     */
     private ArrayList<String> readTextFile(String path) throws IOException {
         String content = Files.readString(Paths.get(path), StandardCharsets.US_ASCII);
         return new ArrayList<>(Arrays.asList(content.split(" ")));

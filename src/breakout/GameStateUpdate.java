@@ -82,41 +82,51 @@ public class GameStateUpdate extends Application {
 
     private void step(double elapsedTime) throws IOException {
 
-        updateBallState(elapsedTime);
+        updateBallMovementState(elapsedTime);
 
         updateBallStateFromPaddle();
 
         updateBallStateFromWall();
 
-        if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
-            resetBall();
-            gamePaddle.lives--;
-            updateLifeText();
-        }
-
-
         updateBallStateFromBricks();
+
+        updatePlayerStateFromBallOutofBounds();
 
         updatePowerUpState(elapsedTime);
 
         updateLevelOrWinState();
 
-        if (gamePaddle.lives == 0) {
-            gamePaddle.lives = 3;
-            scene = uiElementsGenerator.createFailureScreen();
-            primaryStage.setScene(scene);
-            scene.setOnKeyPressed(e -> {
-                try {
-                    handleKeyPress(e.getCode());
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            });
-        }
+        updateLossState();
 
     }
 
-    public void updateBallStateFromBricks() {
+    private void updateBallMovementState(double elapsedTime) {
+        ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
+        ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
+    }
+
+    private void updateBallStateFromPaddle() {
+        if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+            double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
+            double posX = (ball.getBoundsInParent().getCenterX() - gamePaddle.getBoundsInParent().getCenterX()) / (gamePaddle.getBoundsInLocal().getWidth() / 2);
+            double influence = 0.75;
+
+            BALL_SPEED_X = BALL_SPEED_XY * posX * influence;
+            BALL_SPEED_Y = Math.sqrt(BALL_SPEED_XY * BALL_SPEED_XY - BALL_SPEED_X * BALL_SPEED_X) * (BALL_SPEED_Y > 0 ? -1 : 1);
+        }
+    }
+
+    private void updateBallStateFromWall() {
+        if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
+            BALL_SPEED_X *= -1;
+        }
+
+        if (ball.getBoundsInParent().getMinY() <= 0) {
+            BALL_SPEED_Y *= -1;
+        }
+    }
+
+    private void updateBallStateFromBricks() {
         if (levelGenerator.brickList != null) {
             for (Sprite sB : levelGenerator.brickList) {
                 if (sB.getImage() != null) {
@@ -171,16 +181,16 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    private void updateLifeText() {
-        uiElementsGenerator.updateText(UIElements.lifeText, "Lives left: " + gamePaddle.lives);
+    private void updatePlayerStateFromBallOutofBounds() {
+        if (ball.getBoundsInParent().getMaxY() >= HEIGHT) {
+            resetBall();
+            resetPaddle();
+            gamePaddle.lives--;
+            updateLifeText();
+        }
     }
 
-    private void updateScoreText() {
-        gamePaddle.score += 100;
-        uiElementsGenerator.updateText(UIElements.scoreText, "Score: " + gamePaddle.score);
-    }
-
-    public void updatePowerUpState(double elapsedTime) {
+    private void updatePowerUpState(double elapsedTime) {
         if (powerUpManager != null) {
             for (PowerUp pU : powerUpManager) {
                 pU.setY(pU.getY() + POWER_UP_VELOCITY * elapsedTime);
@@ -206,39 +216,7 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    public void updateBallState(double elapsedTime) {
-        ball.setX(ball.getX() + BALL_SPEED_X * elapsedTime);
-        ball.setY(ball.getY() + BALL_SPEED_Y * elapsedTime);
-    }
-
-    public void updateBallStateFromPaddle() {
-        if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
-            double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
-            double posX = (ball.getBoundsInParent().getCenterX() - gamePaddle.getBoundsInParent().getCenterX()) / (gamePaddle.getBoundsInLocal().getWidth() / 2);
-            double influence = 0.75;
-
-            BALL_SPEED_X = BALL_SPEED_XY * posX * influence;
-            BALL_SPEED_Y = Math.sqrt(BALL_SPEED_XY * BALL_SPEED_XY - BALL_SPEED_X * BALL_SPEED_X) * (BALL_SPEED_Y > 0 ? -1 : 1);
-        }
-    }
-
-    public void updateBallStateFromWall() {
-        if (ball.getBoundsInParent().getMaxX() >= WIDTH || ball.getBoundsInParent().getMinX() <= 0) {
-            BALL_SPEED_X *= -1;
-        }
-
-        if (ball.getBoundsInParent().getMinY() <= 0) {
-            BALL_SPEED_Y *= -1;
-        }
-    }
-
-    public void resetBall() {
-        ball.resetBallLocation(300, 400);
-        BALL_SPEED_X = 0;
-        BALL_SPEED_Y = 150;
-    }
-
-    public void updateLevelOrWinState() throws IOException {
+    private void updateLevelOrWinState() throws IOException {
         if (levelGenerator.brickList != null) {
             int sizeOfLevel = levelGenerator.brickList.size();
             int numOfNull = (int) levelGenerator.brickList.stream().filter(p -> p.getImage() == null).count();
@@ -246,25 +224,63 @@ public class GameStateUpdate extends Application {
             if (numOfNull == sizeOfLevel) {
                 resetBall();
                 if (numOfNull == 30) {
-                    uiElementsGenerator.createEndSplashScreen(gamePaddle.score);
+                    uiElementsGenerator.setHighestScore(gamePaddle.score);
+                    scene = uiElementsGenerator.createEndSplashScreen(gamePaddle.score);
+                    updateScene();
                 } else if (numOfNull == 25) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_3);
                 } else if (numOfNull == 20) {
                     scene = levelGenerator.drawALevel(ball, gamePaddle, LEVEL_2);
                 }
-                primaryStage.setScene(scene);
-                scene.setOnKeyPressed(e -> {
-                    try {
-                        handleKeyPress(e.getCode());
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                });
+                updateScene();
             }
         }
     }
 
-    public void handleKeyPress(KeyCode event) throws IOException {
+    private void updateLossState() {
+        if (gamePaddle.lives == 0) {
+            gamePaddle.lives = 3;
+            scene = uiElementsGenerator.createFailureScreen(gamePaddle.score);
+            updateScene();
+        }
+    }
+
+    private void resetBall() {
+        ball.setBallLocation(300, 400);
+        BALL_SPEED_X = 0;
+        BALL_SPEED_Y = 150;
+    }
+
+    private void resetPaddle() {
+        gamePaddle.setPaddleLocation(300, 500);
+    }
+
+    private void updateLifeText() {
+        uiElementsGenerator.updateText(UIElements.lifeText, "Lives left: " + gamePaddle.lives);
+    }
+
+    private void updateScoreText() {
+        gamePaddle.score += 100;
+        uiElementsGenerator.updateText(UIElements.scoreText, "Score: " + gamePaddle.score);
+    }
+
+    private void updateScene() {
+        primaryStage.setScene(scene);
+        scene.setOnKeyPressed(e -> {
+            try {
+                handleKeyPress(e.getCode());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+    }
+
+    private void updateGameLevelScene(String level1) throws IOException {
+        scene = levelGenerator.drawALevel(ball, gamePaddle, level1);
+        updateScene();
+    }
+
+    private void handleKeyPress(KeyCode event) throws IOException {
         if (gamePaddle.getBoundsInParent().getMinX() <= 0) {
             if (event == KeyCode.RIGHT) {
                 gamePaddle.setX(gamePaddle.getX() + 20);
@@ -283,19 +299,22 @@ public class GameStateUpdate extends Application {
         }
         if (event == KeyCode.R) {
             resetBall();
+            resetPaddle();
         }
 
         if (event == KeyCode.ENTER) {
-            updateGameScene(LEVEL_1);
+            gamePaddle.lives = 3;
+            gamePaddle.score = 0;
+            updateGameLevelScene(LEVEL_1);
         }
 
         if (event.isDigitKey()) {
             if (event == KeyCode.DIGIT1) {
-                updateGameScene(LEVEL_1);
+                updateGameLevelScene(LEVEL_1);
             } else if (event == KeyCode.DIGIT2) {
-                updateGameScene(LEVEL_2);
+                updateGameLevelScene(LEVEL_2);
             } else {
-                updateGameScene(LEVEL_3);
+                updateGameLevelScene(LEVEL_3);
             }
         }
 
@@ -316,23 +335,14 @@ public class GameStateUpdate extends Application {
         if (event == KeyCode.ESCAPE) {
             Platform.exit();
         }
-
+        if (event == KeyCode.W) {
+            uiElementsGenerator.setHighestScore(gamePaddle.score);
+            scene = uiElementsGenerator.createEndSplashScreen(gamePaddle.score);
+            updateScene();
+        }
     }
 
-    private void updateGameScene(String level1) throws IOException {
-        scene = levelGenerator.drawALevel(ball, gamePaddle, level1);
-        primaryStage.setScene(scene);
-        scene.setOnKeyPressed(e -> {
-            try {
-                handleKeyPress(e.getCode());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        });
-    }
-
-
-    public PowerUp randomlyCreatePowerUp(Sprite sB) {
+    private PowerUp randomlyCreatePowerUp(Sprite sB) {
         if (Math.random() < 0.2) {
             PowerUp sizeUP = new PowerUp("sizeUP",
                     1,
@@ -352,7 +362,7 @@ public class GameStateUpdate extends Application {
         }
     }
 
-    public void removeBombBrick() {
+    private void removeBombBrick() {
         for (Sprite sB : levelGenerator.brickList) {
             if (sB.type.equals("bombBrick")) {
                 sB.setImage(null);
@@ -367,5 +377,4 @@ public class GameStateUpdate extends Application {
             }
         }
     }
-
 }
