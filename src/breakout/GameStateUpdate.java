@@ -10,6 +10,12 @@ import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -45,7 +51,8 @@ public class GameStateUpdate extends Application {
     public static final String SLOW_BALL = "sizepower.gif";
     public static final String LEVEL_1 = "./resources/level1.txt";
     public static final String LEVEL_2 = "./resources/level2.txt";
-    private static final String LEVEL_3 = "./resources/level3.txt";
+    public static final String LEVEL_3 = "./resources/level3.txt";
+    public static final String SOUND_CLIP = "./resources/pong_beep.wav";
 
     Stage primaryStage;
     Levels levelGenerator = new Levels();
@@ -89,7 +96,7 @@ public class GameStateUpdate extends Application {
         KeyFrame frame = new KeyFrame(Duration.millis(MILLISECOND_DELAY), e -> {
             try {
                 step(SECOND_DELAY);
-            } catch (IOException ex) {
+            } catch (IOException | LineUnavailableException | UnsupportedAudioFileException ex) {
                 ex.printStackTrace();
             }
         });
@@ -105,7 +112,7 @@ public class GameStateUpdate extends Application {
      * @param elapsedTime Time element important to do animation.
      * @throws IOException Thrown because one of the methods below also throws i/o exception.
      */
-    private void step(double elapsedTime) throws IOException {
+    private void step(double elapsedTime) throws IOException, LineUnavailableException, UnsupportedAudioFileException {
 
         updateBallMovementState(elapsedTime);
 
@@ -135,10 +142,14 @@ public class GameStateUpdate extends Application {
     }
 
     /**
-     * This function handles the directional movement of the ball after hitting the paddle.
+     *
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     * @throws LineUnavailableException
      */
-    private void updateBallStateFromPaddle() {
+    private void updateBallStateFromPaddle() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         if (ball.getBoundsInParent().intersects(gamePaddle.getBoundsInParent())) {
+            playSound();
             double BALL_SPEED_XY = Math.sqrt(BALL_SPEED_Y * BALL_SPEED_Y + BALL_SPEED_X * BALL_SPEED_X);
             double posX = (ball.getBoundsInParent().getCenterX() - gamePaddle.getBoundsInParent().getCenterX()) / (gamePaddle.getBoundsInLocal().getWidth() / 2);
             double influence = 0.75;
@@ -472,4 +483,17 @@ public class GameStateUpdate extends Application {
             }
         }
     }
+
+    /**
+     * Plays the wav file.
+     * @throws LineUnavailableException Required to play sound.
+     * @throws IOException Required to play sound.
+     * @throws UnsupportedAudioFileException Required to play sound.
+     */
+    private void playSound() throws LineUnavailableException, IOException, UnsupportedAudioFileException {
+        Clip clip = AudioSystem.getClip();
+        clip.open(AudioSystem.getAudioInputStream(new File(SOUND_CLIP)));
+        clip.start();
+    }
+
 }
