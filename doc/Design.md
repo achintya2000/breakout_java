@@ -1,6 +1,6 @@
 # Design File - CS308 Breakout
 
-##Name: Achintya Kumar
+## Name: Achintya Kumar
 
 ##### Project Roles: Achintya Kumar - All roles (individual project)
 
