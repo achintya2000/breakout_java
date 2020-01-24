@@ -440,11 +440,11 @@ public class GameStateUpdate extends Application {
         }
 
         if (event == KeyCode.B) {
-            removeBombBrick();
+            levelGenerator.removeBombBrick(levelGenerator);
         }
 
         if (event == KeyCode.G) {
-            removeBombBrick();
+            levelGenerator.removeBombBrick(levelGenerator);
             gamePaddle.lives += GOD_MODE_LIVES_MODIFIER;
             updateLifeText();
         }
@@ -485,17 +485,6 @@ public class GameStateUpdate extends Application {
             return ballSlow;
         } else {
             return null;
-        }
-    }
-
-    /**
-     * Called as part of a cheat code to remove bomb bricks from the level.
-     */
-    private void removeBombBrick() {
-        for (Sprite sB : levelGenerator.brickList) {
-            if (sB.type.equals("bombBrick")) {
-                sB.setImage(null);
-            }
         }
     }
 

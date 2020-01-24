@@ -120,6 +120,17 @@ public class Levels {
     }
 
     /**
+     * Called as part of a cheat code to remove bomb bricks from the level.
+     */
+    public void removeBombBrick(Levels l) {
+        for (Sprite sB : l.brickList) {
+            if (sB.type.equals("bombBrick")) {
+                sB.setImage(null);
+            }
+        }
+    }
+
+    /**
      * Function that reads information from a text file.
      * @param path String path to the level text file.
      * @return Returns an array list of all the individual strings delimited by spaces that represent a brick.
